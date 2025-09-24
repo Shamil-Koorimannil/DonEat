@@ -1,3 +1,5 @@
+import 'package:doneat/Pages/Login-Signup/signup.dart';
+import 'package:doneat/Pages/Splash%20Screen/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -17,20 +19,21 @@ class _LoginState extends State<Login> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             ClipPath(
-              key: UniqueKey(),
-              clipper: LoginHead(),
-              child: Container(
-                height: 300,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Color(0xFFFF863B),
+                key: UniqueKey(),
+                clipper: LoginHead(),
+                child: Container(
+                  height: 300,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Color(0xFFFF863B),
+                  ),
+                  child: Center(
+                      child: Text('Login',style: TextStyle(fontSize: 50,color: Colors.white,fontWeight: FontWeight.w700),)),
                 ),
-                child: Center(
-                    child: Text('Login',style: TextStyle(fontSize: 50,color: Colors.white,fontWeight: FontWeight.w700),)),
               ),
-            ),
 
             Padding(padding: EdgeInsets.all(50),
             child: Form(
@@ -68,10 +71,10 @@ class _LoginState extends State<Login> {
                   ),
                   const SizedBox(height: 30,),
                 TextFormField(
-                  controller: _emailController,
+                  controller: _passwordController,
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.password_rounded,color: Color(0xFFFF863B),),
-                    labelText: 'Email',
+                    labelText: 'Password',
 
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Color(0xFFFF863B), width: 2.0),
@@ -96,10 +99,16 @@ class _LoginState extends State<Login> {
                     return null;
                   }
                 ),
+                  const SizedBox(height: 30,),
+
+                  // ElevatedButton(onPressed: onPressed, child: child)
+                  const SizedBox(height: 250,),
+                  Text('Dont have an account?'), TextButton(onPressed: ()=>{Navigator.push(context, MaterialPageRoute(builder: (context)=>Signup()))}, child: Text('Signup',style: TextStyle(color: Color(0xFFFF863B)),))
                 ],
-                )
+                ),
+
             ),
-            )
+            ),
           ],
         ),
       ),
