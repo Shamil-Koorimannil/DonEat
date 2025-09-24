@@ -22,7 +22,7 @@ class _LoginState extends State<Login> {
               key: UniqueKey(),
               clipper: LoginHead(),
               child: Container(
-                height: 400,
+                height: 300,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Color(0xFFFF863B),
@@ -66,9 +66,40 @@ class _LoginState extends State<Login> {
                       return null;
                   }
                   ),
-                  const SizedBox(height: 30,)
+                  const SizedBox(height: 30,),
+                TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.password_rounded,color: Color(0xFFFF863B),),
+                    labelText: 'Email',
+
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFFF863B), width: 2.0),
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFFF863B), width: 3.0),
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                    // Border when there is an error
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red, width: 2.0),
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                  ),
+
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter password';
+                    }
+                    return null;
+                  }
+                ),
                 ],
-                )),)
+                )
+            ),
+            )
           ],
         ),
       ),
