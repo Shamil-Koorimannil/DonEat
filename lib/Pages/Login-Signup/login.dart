@@ -47,12 +47,12 @@ class _LoginState extends State<Login> {
                       labelText: 'Email',
 
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFFFF863B), width: 2.0),
+                        borderSide: BorderSide(color: Color(0xFFFF863B), width: 1.0),
                         borderRadius: BorderRadius.circular(30.0),
                       ),
 
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFFFF863B), width: 3.0),
+                        borderSide: BorderSide(color: Color(0xFFFF863B), width: 2.0),
                         borderRadius: BorderRadius.circular(30.0),
                       ),
                       // Border when there is an error
@@ -63,7 +63,7 @@ class _LoginState extends State<Login> {
                     ),
 
                     validator: (value){
-                      if(value == null || value.isEmpty || !value.contains('@gmail.com')){
+                      if(value == null || value.isEmpty || !value.contains('@')){
                         return 'Please enter your email';
                       }
                       return null;
@@ -77,15 +77,15 @@ class _LoginState extends State<Login> {
                     labelText: 'Password',
 
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFFFF863B), width: 2.0),
+                      borderSide: BorderSide(color: Color(0xFFFF863B), width: 1.0),
                       borderRadius: BorderRadius.circular(30.0),
                     ),
 
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFFFF863B), width: 3.0),
+                      borderSide: BorderSide(color: Color(0xFFFF863B), width: 2),
                       borderRadius: BorderRadius.circular(30.0),
                     ),
-                    // Border when there is an error
+
                     errorBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.red, width: 2.0),
                       borderRadius: BorderRadius.circular(30.0),

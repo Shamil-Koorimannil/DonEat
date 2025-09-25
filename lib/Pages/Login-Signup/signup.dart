@@ -43,7 +43,7 @@ class _SignupState extends State<Signup> {
         SnackBar(content: Text("Signup Successful!")),
       );
 
-      Navigator.pop(context); // go back to login
+      Navigator.pop(context);
     }
   }
 
@@ -62,11 +62,7 @@ class _SignupState extends State<Signup> {
                 child: Center(
                   child: Text(
                     'Sign Up',
-                    style: TextStyle(
-                      fontSize: 45,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 45,fontWeight: FontWeight.bold,color: Colors.white,),
                   ),
                 ),
               ),
@@ -79,14 +75,38 @@ class _SignupState extends State<Signup> {
                   children: [
                     TextFormField(
                       controller: _nameController,
-                      decoration: InputDecoration(labelText: "Name"),
+                      decoration: InputDecoration(labelText: "Name",
+                        enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFFF863B), width: 1.0),
+                        borderRadius: BorderRadius.circular(30.0),),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFFF863B), width: 2.0),
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 2.0),
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
                       validator: (value) =>
                       value == null || value.isEmpty ? "Enter name" : null,
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
                       controller: _emailController,
-                      decoration: InputDecoration(labelText: "Email"),
+                      decoration: InputDecoration(labelText: "Email",
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFFF863B), width: 1.0),
+                          borderRadius: BorderRadius.circular(30.0),),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFFF863B), width: 2.0),
+                          borderRadius: BorderRadius.circular(30.0),),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 2.0),
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
+
                       validator: (value) => value == null ||
                           value.isEmpty ||
                           !value.contains("@")
@@ -97,7 +117,23 @@ class _SignupState extends State<Signup> {
                     TextFormField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(labelText: "Phone"),
+                      decoration: InputDecoration(labelText: "Phone",
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFFF863B), width: 1.0),
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFFF863B), width: 2),
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 2.0),
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+
+                      ),
                       validator: (value) => value == null || value.isEmpty
                           ? "Enter phone number"
                           : null,
@@ -106,7 +142,18 @@ class _SignupState extends State<Signup> {
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
-                      decoration: InputDecoration(labelText: "Password"),
+                      decoration: InputDecoration(labelText: "Password",
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFFF863B), width: 1.0),
+                          borderRadius: BorderRadius.circular(30.0),),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFFF863B), width: 2.0),
+                          borderRadius: BorderRadius.circular(30.0),),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 2.0),
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
                       validator: (value) => value == null || value.isEmpty
                           ? "Enter password"
                           : null,
@@ -115,27 +162,49 @@ class _SignupState extends State<Signup> {
                     TextFormField(
                       controller: _confirmPasswordController,
                       obscureText: true,
-                      decoration: InputDecoration(labelText: "Confirm Password"),
+                      decoration: InputDecoration(labelText: "Confirm Password",
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFFF863B), width: 1.0),
+                          borderRadius: BorderRadius.circular(30.0),),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFFF863B), width: 2.0),
+                          borderRadius: BorderRadius.circular(30.0),),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 2.0),
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
                       validator: (value) => value == null || value.isEmpty
                           ? "Confirm your password"
                           : null,
                     ),
                     const SizedBox(height: 30),
-                    ElevatedButton(
-                      onPressed: _registerDonor,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFFF863B),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                    
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          onPressed: _registerDonor,
+                          style: ElevatedButton.styleFrom(
+                            fixedSize: const Size(150, 50),
+                            backgroundColor: Color(0xFFFF863B),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: Text("Sign Up",style: TextStyle(color: Colors.white),),
                         ),
-                      ),
-                      child: Text("Sign Up"),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
+            SizedBox(height: 30,),
+            Text('Already have an account?'), TextButton(onPressed: ()=>{Navigator.pop(context)}, child: Text('Login',style: TextStyle(color: Color(0xFFFF863B)),))
+
           ],
+
         ),
       ),
     );
@@ -143,27 +212,28 @@ class _SignupState extends State<Signup> {
 }
 
 
-class SignupHead extends CustomClipper<Path> {
+class SignupHead extends CustomClipper<Path>{
   @override
   Path getClip(Size size) {
     Path path = Path();
-    path.lineTo(0, 0);
-
-    path.quadraticBezierTo(
-      size.width * 0.30, size.height * 0.25,
-      size.width * 0.5, size.height * 0.35,
-    );
-
-    path.quadraticBezierTo(
-      size.width * 0.70, size.height * 0.45,
-      size.width, size.height,
-    );
-
-    path.lineTo(size.width, size.height);
     path.lineTo(0, size.height);
+
+    path.quadraticBezierTo(
+      size.width * 0.35, size.height * 0.60,
+      size.width * 0.5, size.height * 0.65,
+    );
+
+    path.quadraticBezierTo(
+      size.width * 0.70, size.height * 0.75,
+      size.width, 0,
+    );
+
+    path.lineTo(size.width, 0);
     path.close();
     return path;
   }
+
+
 
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => true;
