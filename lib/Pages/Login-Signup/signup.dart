@@ -1,6 +1,6 @@
+import 'package:doneat/Pages/Login-Signup/rolepage.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:doneat/Models/DonEat_model.dart';
+
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -17,7 +17,7 @@ class _SignupState extends State<Signup> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  Future<void> _registerDonor() async {
+  Future<void> _registerUser() async {
     if (_formKey.currentState!.validate()) {
       if (_passwordController.text != _confirmPasswordController.text) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -25,25 +25,12 @@ class _SignupState extends State<Signup> {
         );
         return;
       }
-
-      var box = await Hive.openBox<Donor>('donors');
-
-      await box.put(
-        _emailController.text,
-        Donor(
-          name: _nameController.text,
-          email: _emailController.text,
-          phone: int.parse(_phoneController.text),
-          password: _passwordController.text,
-        ),
-      );
-
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Signup Successful!")),
-      );
-
-      Navigator.pop(context);
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>role(
+        name: _nameController.text,
+        email: _emailController.text,
+        phone: int.parse(_phoneController.text),
+        password: _passwordController.text
+      )));
     }
   }
 
@@ -179,12 +166,12 @@ class _SignupState extends State<Signup> {
                           : null,
                     ),
                     const SizedBox(height: 30),
-                    
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         ElevatedButton(
-                          onPressed: _registerDonor,
+                          onPressed: _registerUser,
                           style: ElevatedButton.styleFrom(
                             fixedSize: const Size(150, 50),
                             backgroundColor: Color(0xFFFF863B),

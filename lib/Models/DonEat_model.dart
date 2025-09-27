@@ -6,22 +6,56 @@ part 'DonEat_model.g.dart';
 
 class Donor extends HiveObject{
   @HiveField(0)
-  String name;
+  String? name;
 
   @HiveField(1)
-  String email;
+  String? email;
 
   @HiveField(2)
-  int phone;
+  int? phone;
 
   @HiveField(3)
-  String password;
+  String? password;
 
 Donor({
   required this.name,
   required this.email,
   required this.phone,
   required this.password
+});
+}
+
+@HiveType(typeId: 1)
+class Agent extends HiveObject {
+  @HiveField(0)
+  String? name;
+
+  @HiveField(1)
+  String? email;
+  
+  @HiveField(2)
+  int? phone;
+  
+  @HiveField(3)
+  String? password;
+  
+  @HiveField(4)
+  String? vehicleType;
+  
+  @HiveField(5)
+  int? capacity;
+  
+  @HiveField(6)
+  String? profilePhotoPath;
+
+  Agent({
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.password,
+    required this.profilePhotoPath,
+    required this.vehicleType,
+    required this.capacity
 });
 }
 
