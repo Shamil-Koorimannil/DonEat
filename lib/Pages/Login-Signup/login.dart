@@ -1,10 +1,12 @@
+import 'package:doneat/Concense/keys_consence.dart';
 import 'package:doneat/Models/DonEat_model.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'signup.dart';
 import '../Agent/Agent Home.dart';
-import '../Donor/Donor Home.dart';
+import '../Donor/Donor Pages/Donor Home.dart';
+import 'package:doneat/Concense/keys_consence.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -48,19 +50,24 @@ class _LoginState extends State<Login> {
 
     if (donor != null) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isLoggedIn', true);
-      await prefs.setString('role', 'donor');
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>DonorHome()),(route) => false,);
+      await prefs.setBool(KeysConstant.isLoggedIn, true);
+      await prefs.setString(KeysConstant.role, 'donor');
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => DonorHome()),
+            (route) => false,
+      );
     } else if (agent != null) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isLoggedIn', true);
-      await prefs.setString('role', 'agent');
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>AgentHome()),(route) => false,);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Invalid email or password")),
+      await prefs.setBool(KeysConstant.isLoggedIn, true);
+      await prefs.setString(KeysConstant.role, 'agent');
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => AgentHome()),
+            (route) => false,
       );
     }
+
   }
 
   @override

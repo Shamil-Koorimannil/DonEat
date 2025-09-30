@@ -3,8 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:doneat/Pages/Login-Signup/login.dart';
 
+import '../../Concense/keys_consence.dart';
 import '../Agent/Agent Home.dart';
-import '../Donor/Donor Home.dart';
+import '../Donor/Donor Pages/Donor Home.dart';
 
 
 class Splash_Screen extends StatefulWidget {
@@ -25,27 +26,25 @@ class _Splash_ScreenState extends State<Splash_Screen> {
     await Future.delayed(const Duration(seconds: 3));
 
     final prefs = await SharedPreferences.getInstance();
-    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-    final role = prefs.getString('role');
+    final isLoggedIn = prefs.getBool(KeysConstant.isLoggedIn) ?? false;
+    final role = prefs.getString(KeysConstant.role);
 
-    if (!mounted) return;
-
-    if (isLoggedIn && role == "donor") {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => DonorHome()),
-      );
-    } else if (isLoggedIn && role == "agent") {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => AgentHome()),
-      );
+    Widget home;
+    if (isLoggedIn) {
+      if (role == 'donor') {
+        home = const DonorHome();
+      } else if (role == 'agent') {
+        home = const AgentHome();
+      } else {
+        home = const Login();
+      }
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Login()),
-      );
+      home = const Login();
     }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => home),
+    );
   }
 
   @override

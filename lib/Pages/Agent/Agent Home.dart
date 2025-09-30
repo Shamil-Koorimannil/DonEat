@@ -22,6 +22,7 @@ class _AgentHomeState extends State<AgentHome> {
           (route) => false,
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,10 +30,10 @@ class _AgentHomeState extends State<AgentHome> {
         actions: [
           IconButton(
             onPressed: () => logout(context),
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
           ),
-
         ],
+
       ),
     );
   }
