@@ -10,9 +10,13 @@ void main() async{
 
   Hive.registerAdapter(DonorAdapter());
   Hive.registerAdapter(AgentAdapter());
+  Hive.registerAdapter(DonationAdapter());
+
 
   await Hive.openBox<Donor>('donors');
   await Hive.openBox<Agent>('agents');
+  await Hive.openBox<Donation>('donations');
+  await Hive.openBox('session');
   runApp(DonEat());
 }
 

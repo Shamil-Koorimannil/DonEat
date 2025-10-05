@@ -8,7 +8,7 @@ import '../../Models/DonEat_model.dart';
 class role extends StatefulWidget {
   final String name;
   final String email;
-  final int phone;
+  final String phone;
   final String password;
   const role({super.key , required this.name, required this.email, required this.phone, required this.password});
 

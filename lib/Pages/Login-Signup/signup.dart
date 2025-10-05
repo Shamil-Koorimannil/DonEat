@@ -28,8 +28,8 @@ class _SignupState extends State<Signup> {
       Navigator.push(context, MaterialPageRoute(builder: (context)=>role(
         name: _nameController.text,
         email: _emailController.text,
-        phone: int.parse(_phoneController.text),
-        password: _passwordController.text
+          phone: _phoneController.text,
+          password: _passwordController.text
       )));
     }
   }

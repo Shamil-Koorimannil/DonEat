@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 part 'DonEat_model.g.dart';
 
-@HiveType(typeId:0)
+@HiveType(typeId:10)
 
 class Donor extends HiveObject{
   @HiveField(0)
@@ -12,20 +12,24 @@ class Donor extends HiveObject{
   String? email;
 
   @HiveField(2)
-  int? phone;
+  String? phone;
 
   @HiveField(3)
   String? password;
+
+  @HiveField(4)
+  String? profilePhotoPath;
 
 Donor({
   required this.name,
   required this.email,
   required this.phone,
-  required this.password
+  required this.password,
+  this.profilePhotoPath,
 });
 }
 
-@HiveType(typeId: 1)
+@HiveType(typeId: 11)
 class Agent extends HiveObject {
   @HiveField(0)
   String? name;
@@ -34,7 +38,7 @@ class Agent extends HiveObject {
   String? email;
   
   @HiveField(2)
-  int? phone;
+  String? phone;
   
   @HiveField(3)
   String? password;
@@ -59,3 +63,36 @@ class Agent extends HiveObject {
 });
 }
 
+@HiveType(typeId: 12)
+class Donation extends HiveObject {
+  @HiveField(0)
+  String foodName;
+
+  @HiveField(1)
+  String location;
+
+  @HiveField(2)
+  String date;
+
+  @HiveField(3)
+  String time;
+
+  @HiveField(4)
+  String contact;
+
+  @HiveField(5)
+  int quantity;
+
+  @HiveField(6)
+  List<String>? imagePaths;
+
+  Donation({
+    required this.foodName,
+    required this.location,
+    required this.date,
+    required this.time,
+    required this.contact,
+    required this.quantity,
+    this.imagePaths,
+  });
+}

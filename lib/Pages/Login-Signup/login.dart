@@ -3,6 +3,7 @@ import 'package:doneat/Models/DonEat_model.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../Donor/Donor Widgets/header.dart';
 import 'signup.dart';
 import '../Agent/Agent Home.dart';
 import '../Donor/Donor Pages/Donor Home.dart';
@@ -23,52 +24,65 @@ class _LoginState extends State<Login> {
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final email= _emailController.text.trim();
-    final password= _passwordController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
 
-    final donorBox= await Hive.openBox<Donor>('donors');
-    final agentBox= await Hive.openBox<Agent>('agents');
+    final agentBox = Hive.box<Agent>('agents');
+    final donorBox = Hive.box<Donor>('donors');
+    final sessionBox = Hive.box('session');
 
-    Donor? donor;
     Agent? agent;
+    Donor? donor;
+    int agentIndex = -1;
+    int donorIndex = -1;
 
-    for (var d in donorBox.values) {
-      if (d.email == email && d.password == password) {
-        donor = d;
+    // Check agents first
+    for (int i = 0; i < agentBox.length; i++) {
+      var a = agentBox.getAt(i);
+      if (a?.email == email && a?.password == password) {
+        agent = a;
+        agentIndex = i;
         break;
       }
     }
 
-    if (donor == null) {
-      for (var a in agentBox.values) {
-        if (a.email == email && a.password == password) {
-          agent = a;
+    // If no agent found, check donors
+    if (agent == null) {
+      for (int i = 0; i < donorBox.length; i++) {
+        var d = donorBox.getAt(i);
+        if (d?.email == email && d?.password == password) {
+          donor = d;
+          donorIndex = i;
           break;
         }
       }
     }
 
-    if (donor != null) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(KeysConstant.isLoggedIn, true);
-      await prefs.setString(KeysConstant.role, 'donor');
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => DonorHome()),
-            (route) => false,
-      );
-    } else if (agent != null) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(KeysConstant.isLoggedIn, true);
-      await prefs.setString(KeysConstant.role, 'agent');
+    if (agent != null) {
+      await sessionBox.put('loggedInUserIndex', agentIndex);
+      await sessionBox.put('userType', 'agent');
+
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => AgentHome()),
             (route) => false,
       );
-    }
+    } else if (donor != null) {
+      await sessionBox.put('loggedInUserIndex', donorIndex);
+      await sessionBox.put('userType', 'donor');
 
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => DonorHome()),
+            (route) => false,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Invalid email or password")),
+      );
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +93,7 @@ class _LoginState extends State<Login> {
           children: [
             ClipPath(
               key: UniqueKey(),
-              clipper: LoginHead(),
+              clipper: DonorHead(),
               child: Container(
                 height: 300,
                 width: double.infinity,
@@ -196,22 +210,4 @@ class _LoginState extends State<Login> {
       ),
     );
   }
-}
-
-class LoginHead extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    Path path = Path();
-    path.lineTo(0, size.height);
-    path.quadraticBezierTo(size.width * 0.35, size.height * 0.60,
-        size.width * 0.5, size.height * 0.65);
-    path.quadraticBezierTo(
-        size.width * 0.70, size.height * 0.75, size.width, 0);
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => true;
 }

@@ -2,16 +2,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hive/hive.dart';
-import 'package:flutter/cupertino.dart';
 import '../../Models/DonEat_model.dart';
+import '../Agent/Agent Home.dart';
 import 'login.dart';
-
-
 
 class AgentRegister extends StatefulWidget {
   final String name;
   final String email;
-  final int phone;
+  final String phone;
   final String password;
 
   const AgentRegister({
@@ -29,9 +27,7 @@ class AgentRegister extends StatefulWidget {
 class _AgentRegisterState extends State<AgentRegister> {
   String? selectedVehicle;
   int capacity = 50;
-  final TextEditingController _capacityController =
-  TextEditingController(text: "50");
-
+  final TextEditingController _capacityController = TextEditingController(text: "50");
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
 
@@ -43,8 +39,18 @@ class _AgentRegisterState extends State<AgentRegister> {
       });
     }
   }
+
   Future<void> _saveAgent() async {
-    final box = await Hive.openBox<Agent>('agents');
+    final agentBox = Hive.box<Agent>('agents');
+    final donorsBox = Hive.box<Donor>('donors');
+
+    // Remove donor account if it exists
+    int donorIndex = donorsBox.values.toList().indexWhere((d) => d.email == widget.email);
+    if (donorIndex != -1) {
+      donorsBox.deleteAt(donorIndex);
+    }
+
+    // Create agent account
     final agent = Agent(
       name: widget.name,
       email: widget.email,
@@ -54,10 +60,20 @@ class _AgentRegisterState extends State<AgentRegister> {
       capacity: capacity,
       profilePhotoPath: _imageFile?.path ?? "",
     );
-    await box.add(agent);
 
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Login()));
+    await agentBox.add(agent);
+
+    // Clear session
+    Hive.box('session').delete('loggedInUserIndex');
+    Hive.box('session').delete('userType');
+
+    // Go to login
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => Login()),
+    );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -72,23 +88,27 @@ class _AgentRegisterState extends State<AgentRegister> {
               color: Color(0xFFFF863B),
               child: Center(
                 child: Column(
-                  children:[
-                    SizedBox(height: 30,),
+                  children: [
+                    SizedBox(height: 30),
                     Row(
-                    children:[
-                IconButton(onPressed:()=> Navigator.pop(context),
-                  icon: Icon(CupertinoIcons.back,size: 40,),color: Colors.white,),
-                ],),
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: Icon(Icons.arrow_back, size: 40),
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
                     Text(
                       'Sign Up',
-                      style: TextStyle(fontSize: 45,fontWeight: FontWeight.bold,color: Colors.white,),
+                      style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
-                  ]
+                  ],
                 ),
               ),
             ),
           ),
-          Center(
+          Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
@@ -99,15 +119,11 @@ class _AgentRegisterState extends State<AgentRegister> {
                     child: CircleAvatar(
                       radius: 50,
                       backgroundColor: const Color(0xFFFF863B),
-                      backgroundImage:
-                      _imageFile != null ? FileImage(_imageFile!) : null,
-                      child: _imageFile == null
-                          ? const Icon(Icons.person, color: Colors.white, size: 50)
-                          : null,
+                      backgroundImage: _imageFile != null ? FileImage(_imageFile!) : null,
+                      child: _imageFile == null ? const Icon(Icons.person, color: Colors.white, size: 50) : null,
                     ),
                   ),
                   const SizedBox(height: 30),
-
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
@@ -121,22 +137,10 @@ class _AgentRegisterState extends State<AgentRegister> {
                         dropdownColor: Colors.white,
                         value: selectedVehicle,
                         hint: const Text("Select Vehicle"),
-                        items: [
-                          "Bicycle",
-                          "Motorbike / Scooter",
-                          "Auto Rickshaw",
-                          "Car",
-                          "Van"
-                        ]
+                        items: ["Bicycle", "Motorbike / Scooter", "Auto Rickshaw", "Car", "Van"]
                             .map((v) => DropdownMenuItem(
                           value: v,
-                          child: Center(
-                            child: Text(
-                              v,
-                              style: const TextStyle(
-                                  fontSize: 16, color: Colors.black),
-                            ),
-                          ),
+                          child: Center(child: Text(v, style: TextStyle(fontSize: 16, color: Colors.black))),
                         ))
                             .toList(),
                         onChanged: (value) {
@@ -148,14 +152,8 @@ class _AgentRegisterState extends State<AgentRegister> {
                     ),
                   ),
                   const SizedBox(height: 30),
-
-                  Text(
-                    "Choose your limit:",
-                    style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                  ),
+                  Text("Choose your limit:", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 10),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -168,9 +166,7 @@ class _AgentRegisterState extends State<AgentRegister> {
                           decoration: InputDecoration(
                             isDense: true,
                             contentPadding: const EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
                           ),
                           onChanged: (value) {
                             final numValue = int.tryParse(value) ?? capacity;
@@ -197,57 +193,38 @@ class _AgentRegisterState extends State<AgentRegister> {
                     },
                   ),
                   const SizedBox(height: 30),
-
                   ElevatedButton(
                     onPressed: selectedVehicle == null ? null : _saveAgent,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFF863B),
                       disabledBackgroundColor: Colors.grey,
                       fixedSize: const Size(200, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     ),
-                    child: const Text(
-                      "Go to Login",
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
+                    child: const Text("Go to Home", style: TextStyle(color: Colors.white, fontSize: 18)),
                   ),
                 ],
               ),
             ),
           ),
-        ]
+        ],
       ),
     );
   }
 }
 
-
-class SignupHead extends CustomClipper<Path>{
+class SignupHead extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     Path path = Path();
     path.lineTo(0, size.height);
-
-    path.quadraticBezierTo(
-      size.width * 0.35, size.height * 0.60,
-      size.width * 0.5, size.height * 0.65,
-    );
-
-    path.quadraticBezierTo(
-      size.width * 0.70, size.height * 0.75,
-      size.width, 0,
-    );
-
+    path.quadraticBezierTo(size.width * 0.35, size.height * 0.60, size.width * 0.5, size.height * 0.65);
+    path.quadraticBezierTo(size.width * 0.70, size.height * 0.75, size.width, 0);
     path.lineTo(size.width, 0);
     path.close();
     return path;
   }
 
-
-
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => true;
 }
-
