@@ -2,8 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hive/hive.dart';
+import '../../Concense/keys_consence.dart';
 import '../../Models/DonEat_model.dart';
-import '../Agent/Agent Home.dart';
+import '../Agent/Agent Widgets/header.dart';
 import 'login.dart';
 
 class AgentRegister extends StatefulWidget {
@@ -41,16 +42,14 @@ class _AgentRegisterState extends State<AgentRegister> {
   }
 
   Future<void> _saveAgent() async {
-    final agentBox = Hive.box<Agent>('agents');
-    final donorsBox = Hive.box<Donor>('donors');
+    final agentBox = Hive.box<Agent>(KeysConstant.agentsBox);
+    final donorsBox = Hive.box<Donor>(KeysConstant.donorsBox);
 
-    // Remove donor account if it exists
     int donorIndex = donorsBox.values.toList().indexWhere((d) => d.email == widget.email);
     if (donorIndex != -1) {
       donorsBox.deleteAt(donorIndex);
     }
 
-    // Create agent account
     final agent = Agent(
       name: widget.name,
       email: widget.email,
@@ -63,17 +62,14 @@ class _AgentRegisterState extends State<AgentRegister> {
 
     await agentBox.add(agent);
 
-    // Clear session
-    Hive.box('session').delete('loggedInUserIndex');
-    Hive.box('session').delete('userType');
+    Hive.box(KeysConstant.sessionBox).delete(KeysConstant.loggedInUserIndex);
+    Hive.box(KeysConstant.sessionBox).delete(KeysConstant.userType);
 
-    // Go to login
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => Login()),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -81,25 +77,25 @@ class _AgentRegisterState extends State<AgentRegister> {
       body: Column(
         children: [
           ClipPath(
-            clipper: SignupHead(),
+            clipper: AgentHead(),
             child: Container(
               height: 250,
               width: double.infinity,
-              color: Color(0xFFFF863B),
+              color: const Color(0xFFFF863B),
               child: Center(
                 child: Column(
                   children: [
-                    SizedBox(height: 30),
+                    const SizedBox(height: 30),
                     Row(
                       children: [
                         IconButton(
                           onPressed: () => Navigator.pop(context),
-                          icon: Icon(Icons.arrow_back, size: 40),
+                          icon: const Icon(Icons.arrow_back, size: 40),
                           color: Colors.white,
                         ),
                       ],
                     ),
-                    Text(
+                    const Text(
                       'Sign Up',
                       style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
@@ -140,7 +136,7 @@ class _AgentRegisterState extends State<AgentRegister> {
                         items: ["Bicycle", "Motorbike / Scooter", "Auto Rickshaw", "Car", "Van"]
                             .map((v) => DropdownMenuItem(
                           value: v,
-                          child: Center(child: Text(v, style: TextStyle(fontSize: 16, color: Colors.black))),
+                          child: Center(child: Text(v, style: const TextStyle(fontSize: 16, color: Colors.black))),
                         ))
                             .toList(),
                         onChanged: (value) {
@@ -152,7 +148,7 @@ class _AgentRegisterState extends State<AgentRegister> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  Text("Choose your limit:", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                  const Text("Choose your limit:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -211,20 +207,4 @@ class _AgentRegisterState extends State<AgentRegister> {
       ),
     );
   }
-}
-
-class SignupHead extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    Path path = Path();
-    path.lineTo(0, size.height);
-    path.quadraticBezierTo(size.width * 0.35, size.height * 0.60, size.width * 0.5, size.height * 0.65);
-    path.quadraticBezierTo(size.width * 0.70, size.height * 0.75, size.width, 0);
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => true;
 }

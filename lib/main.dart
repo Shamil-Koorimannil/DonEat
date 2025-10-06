@@ -11,12 +11,14 @@ void main() async{
   Hive.registerAdapter(DonorAdapter());
   Hive.registerAdapter(AgentAdapter());
   Hive.registerAdapter(DonationAdapter());
+  Hive.registerAdapter(ChatMessageAdapter());
 
 
   await Hive.openBox<Donor>('donors');
   await Hive.openBox<Agent>('agents');
   await Hive.openBox<Donation>('donations');
   await Hive.openBox('session');
+  await Hive.openBox<ChatMessage>('chatMessages');
   runApp(DonEat());
 }
 

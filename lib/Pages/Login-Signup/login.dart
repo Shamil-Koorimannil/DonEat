@@ -5,9 +5,8 @@ import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Donor/Donor Widgets/header.dart';
 import 'signup.dart';
-import '../Agent/Agent Home.dart';
+import '../Agent/Agent Pages/Agent Home.dart';
 import '../Donor/Donor Pages/Donor Home.dart';
-import 'package:doneat/Concense/keys_consence.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -27,16 +26,15 @@ class _LoginState extends State<Login> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
-    final agentBox = Hive.box<Agent>('agents');
-    final donorBox = Hive.box<Donor>('donors');
-    final sessionBox = Hive.box('session');
+    final agentBox = Hive.box<Agent>(KeysConstant.agentsBox);
+    final donorBox = Hive.box<Donor>(KeysConstant.donorsBox);
+    final sessionBox = Hive.box(KeysConstant.sessionBox);
 
     Agent? agent;
     Donor? donor;
     int agentIndex = -1;
     int donorIndex = -1;
 
-    // Check agents first
     for (int i = 0; i < agentBox.length; i++) {
       var a = agentBox.getAt(i);
       if (a?.email == email && a?.password == password) {
@@ -46,7 +44,6 @@ class _LoginState extends State<Login> {
       }
     }
 
-    // If no agent found, check donors
     if (agent == null) {
       for (int i = 0; i < donorBox.length; i++) {
         var d = donorBox.getAt(i);
@@ -59,8 +56,13 @@ class _LoginState extends State<Login> {
     }
 
     if (agent != null) {
-      await sessionBox.put('loggedInUserIndex', agentIndex);
-      await sessionBox.put('userType', 'agent');
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(KeysConstant.isLoggedIn, true);
+      await prefs.setString(KeysConstant.role, KeysConstant.agentUserType);
+
+      await sessionBox.put(KeysConstant.loggedInUserIndex, agentIndex);
+      await sessionBox.put(KeysConstant.userType, KeysConstant.agentUserType);
+      await sessionBox.put(KeysConstant.agentId, 'agent_$agentIndex');
 
       Navigator.pushAndRemoveUntil(
         context,
@@ -68,8 +70,8 @@ class _LoginState extends State<Login> {
             (route) => false,
       );
     } else if (donor != null) {
-      await sessionBox.put('loggedInUserIndex', donorIndex);
-      await sessionBox.put('userType', 'donor');
+      await sessionBox.put(KeysConstant.loggedInUserIndex, donorIndex);
+      await sessionBox.put(KeysConstant.userType, KeysConstant.donorUserType);
 
       Navigator.pushAndRemoveUntil(
         context,
@@ -83,6 +85,18 @@ class _LoginState extends State<Login> {
     }
   }
 
+  Future<void> _debugAllAccounts() async {
+    var agentBox = Hive.box<Agent>(KeysConstant.agentsBox);
+    var donorBox = Hive.box<Donor>(KeysConstant.donorsBox);
+
+    for (int i = 0; i < agentBox.length; i++) {
+      var agent = agentBox.getAt(i);
+    }
+
+    for (int i = 0; i < donorBox.length; i++) {
+      var donor = donorBox.getAt(i);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +132,6 @@ class _LoginState extends State<Login> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    // Email field
                     TextFormField(
                       controller: _emailController,
                       decoration: InputDecoration(
@@ -146,7 +159,6 @@ class _LoginState extends State<Login> {
                       },
                     ),
                     const SizedBox(height: 30),
-
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
@@ -173,7 +185,6 @@ class _LoginState extends State<Login> {
                       },
                     ),
                     const SizedBox(height: 30),
-
                     ElevatedButton(
                       onPressed: _login,
                       style: ElevatedButton.styleFrom(
@@ -188,13 +199,11 @@ class _LoginState extends State<Login> {
                         style: TextStyle(color: Colors.white, fontSize: 18),
                       ),
                     ),
-
                     const SizedBox(height: 30),
-
-                    const Text("Don’t have an account?"),
+                    const Text("Don't have an account?"),
                     TextButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Signup()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>const Signup()));
                       },
                       child: const Text(
                         "Signup",

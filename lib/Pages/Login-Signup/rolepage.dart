@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
+import '../../Concense/keys_consence.dart';
 import 'login.dart';
 import 'Agent register.dart';
 import '../../Models/DonEat_model.dart';
 
-class role extends StatefulWidget {
+class Role extends StatefulWidget {
   final String name;
   final String email;
   final String phone;
   final String password;
-  const role({super.key , required this.name, required this.email, required this.phone, required this.password});
+  const Role({super.key , required this.name, required this.email, required this.phone, required this.password});
 
   @override
-  State<role> createState() => _roleState();
+  State<Role> createState() => _RoleState();
 }
 
-class _roleState extends State<role> {
-  String? Role;
+class _RoleState extends State<Role> {
+  String? role;
 
   @override
   Widget build(BuildContext context) {
@@ -46,55 +47,50 @@ class _roleState extends State<role> {
                     ),
                   ),
                 ),
-              ),),
+              ),
+            ),
           ),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
-              SizedBox(height: 60),
+              const SizedBox(height: 60),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _Roles("donor", Icons.handshake_rounded, "Donor"),
-                  _Roles("agent", Icons.delivery_dining, "Agent"),
+                  _buildRole(KeysConstant.donorUserType, Icons.handshake_rounded, "Donor"),
+                  _buildRole(KeysConstant.agentUserType, Icons.delivery_dining, "Agent"),
                 ],
               ),
-
               const SizedBox(height: 80),
-
               ElevatedButton(
-                  onPressed: Role == null
-                      ? null
-                      : () async {
-                    if (Role == "donor") {
-                      var donorBox = Hive.box<Donor>('donors');
-                      final donor = Donor(
-                        name: widget.name,
-                        email: widget.email,
-                        phone: widget.phone,
-                        password: widget.password,
-                      );
-                      await donorBox.add(donor);
-
-                      Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>Login()));
-
-                    } else if (Role == "agent") {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AgentRegister(
-                            name: widget.name,
-                            email: widget.email,
-                            phone: widget.phone,
-                            password: widget.password,
-                          ),
+                onPressed: role == null
+                    ? null
+                    : () async {
+                  if (role == KeysConstant.donorUserType) {
+                    var donorBox = Hive.box<Donor>(KeysConstant.donorsBox);
+                    final donor = Donor(
+                      name: widget.name,
+                      email: widget.email,
+                      phone: widget.phone,
+                      password: widget.password,
+                    );
+                    await donorBox.add(donor);
+                    Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>const Login()));
+                  } else if (role == KeysConstant.agentUserType) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AgentRegister(
+                          name: widget.name,
+                          email: widget.email,
+                          phone: widget.phone,
+                          password: widget.password,
                         ),
-                      );
-                    }
-                  },
-
-                  style: ElevatedButton.styleFrom(
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFF863B),
                   disabledBackgroundColor: Colors.grey,
                   fixedSize: const Size(180, 50),
@@ -114,12 +110,12 @@ class _roleState extends State<role> {
     );
   }
 
-  Widget _Roles(String role, IconData icon, String label) {
-    final bool choose = Role == role;
+  Widget _buildRole(String roleType, IconData icon, String label) {
+    final bool isSelected = role == roleType;
     return GestureDetector(
       onTap: () {
         setState(() {
-          Role = role;
+          role = roleType;
         });
       },
       child: Column(
@@ -127,7 +123,7 @@ class _roleState extends State<role> {
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: choose ? const Color(0xFFFF863B) : Colors.white,
+              color: isSelected ? const Color(0xFFFF863B) : Colors.white,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.1),
@@ -143,7 +139,7 @@ class _roleState extends State<role> {
               child: Icon(
                 icon,
                 size: 50,
-                color: choose ? Colors.white : const Color(0xFFFF863B),
+                color: isSelected ? Colors.white : const Color(0xFFFF863B),
               ),
             ),
           ),
@@ -153,7 +149,7 @@ class _roleState extends State<role> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w500,
-              color: choose ? const Color(0xFFFF863B) : Colors.black,
+              color: isSelected ? const Color(0xFFFF863B) : Colors.black,
             ),
           ),
         ],

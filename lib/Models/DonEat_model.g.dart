@@ -121,14 +121,17 @@ class DonationAdapter extends TypeAdapter<Donation> {
       time: fields[3] as String,
       contact: fields[4] as String,
       quantity: fields[5] as int,
+      donationId: fields[9] as String,
       imagePaths: (fields[6] as List?)?.cast<String>(),
+      status: fields[7] as String,
+      acceptedByAgentId: fields[8] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Donation obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.foodName)
       ..writeByte(1)
@@ -142,7 +145,13 @@ class DonationAdapter extends TypeAdapter<Donation> {
       ..writeByte(5)
       ..write(obj.quantity)
       ..writeByte(6)
-      ..write(obj.imagePaths);
+      ..write(obj.imagePaths)
+      ..writeByte(7)
+      ..write(obj.status)
+      ..writeByte(8)
+      ..write(obj.acceptedByAgentId)
+      ..writeByte(9)
+      ..write(obj.donationId);
   }
 
   @override
@@ -152,6 +161,52 @@ class DonationAdapter extends TypeAdapter<Donation> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is DonationAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class ChatMessageAdapter extends TypeAdapter<ChatMessage> {
+  @override
+  final int typeId = 13;
+
+  @override
+  ChatMessage read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return ChatMessage(
+      donationId: fields[0] as String,
+      senderId: fields[1] as String,
+      message: fields[2] as String,
+      timestamp: fields[3] as DateTime,
+      senderName: fields[4] as String,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, ChatMessage obj) {
+    writer
+      ..writeByte(5)
+      ..writeByte(0)
+      ..write(obj.donationId)
+      ..writeByte(1)
+      ..write(obj.senderId)
+      ..writeByte(2)
+      ..write(obj.message)
+      ..writeByte(3)
+      ..write(obj.timestamp)
+      ..writeByte(4)
+      ..write(obj.senderName);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChatMessageAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

@@ -86,6 +86,15 @@ class Donation extends HiveObject {
   @HiveField(6)
   List<String>? imagePaths;
 
+  @HiveField(7)
+  String status;
+
+  @HiveField(8)
+  String? acceptedByAgentId;
+
+  @HiveField(9)
+  String donationId;
+
   Donation({
     required this.foodName,
     required this.location,
@@ -93,6 +102,34 @@ class Donation extends HiveObject {
     required this.time,
     required this.contact,
     required this.quantity,
+    required this.donationId,
     this.imagePaths,
+    this.status = "available",
+    this.acceptedByAgentId,
+  });
+}
+@HiveType(typeId: 13)
+class ChatMessage extends HiveObject {
+  @HiveField(0)
+  final String donationId;
+
+  @HiveField(1)
+  final String senderId;
+
+  @HiveField(2)
+  final String message;
+
+  @HiveField(3)
+  final DateTime timestamp;
+
+  @HiveField(4)
+  final String senderName;
+
+  ChatMessage({
+    required this.donationId,
+    required this.senderId,
+    required this.message,
+    required this.timestamp,
+    required this.senderName,
   });
 }

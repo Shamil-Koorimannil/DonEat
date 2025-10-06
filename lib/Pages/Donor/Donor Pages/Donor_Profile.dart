@@ -4,6 +4,7 @@ import 'package:doneat/Pages/Login-Signup/Agent%20register.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hive/hive.dart';
+import '../../../Concense/keys_consence.dart';
 import '../../../Models/DonEat_model.dart';
 import '../../Login-Signup/login.dart';
 
@@ -32,8 +33,6 @@ class _DonorProfileState extends State<DonorProfile> {
     Future.delayed(Duration.zero, _loadDonor);
   }
 
-
-
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -44,9 +43,9 @@ class _DonorProfileState extends State<DonorProfile> {
   }
 
   Future<void> _loadDonor() async {
-    var sessionBox = Hive.box('session');
-    var donorsBox = Hive.box<Donor>('donors');
-    int? index = sessionBox.get('loggedInUserIndex');
+    var sessionBox = Hive.box(KeysConstant.sessionBox);
+    var donorsBox = Hive.box<Donor>(KeysConstant.donorsBox);
+    int? index = sessionBox.get(KeysConstant.loggedInUserIndex);
 
     if (index == null || donorsBox.length <= index) {
       Navigator.pushAndRemoveUntil(
@@ -63,7 +62,7 @@ class _DonorProfileState extends State<DonorProfile> {
       _nameController.text = _donor.name ?? '';
       _emailController.text = _donor.email ?? '';
       _phoneController.text = _donor.phone ?? '';
-      _passwordController.text = _donor.password ?? ''; // load password correctly
+      _passwordController.text = _donor.password ?? '';
       _profilePhotoPath = _donor.profilePhotoPath;
       _isLoading = false;
     });
@@ -71,15 +70,15 @@ class _DonorProfileState extends State<DonorProfile> {
 
   Future<void> _saveProfile() async {
     if (_formKey.currentState!.validate()) {
-      var sessionBox = Hive.box('session');
-      var donorsBox = Hive.box<Donor>('donors');
-      int? index = sessionBox.get('loggedInUserIndex');
+      var sessionBox = Hive.box(KeysConstant.sessionBox);
+      var donorsBox = Hive.box<Donor>(KeysConstant.donorsBox);
+      int? index = sessionBox.get(KeysConstant.loggedInUserIndex);
 
       if (index != null) {
         _donor.name = _nameController.text;
         _donor.email = _emailController.text;
         _donor.phone = _phoneController.text;
-        _donor.password = _passwordController.text; // save password
+        _donor.password = _passwordController.text;
         _donor.profilePhotoPath = _profilePhotoPath;
 
         await donorsBox.putAt(index, _donor);
@@ -91,10 +90,9 @@ class _DonorProfileState extends State<DonorProfile> {
     }
   }
 
-
   void _logout() {
-    Hive.box('session').delete('loggedInUserIndex');
-    Hive.box('session').delete('userType');
+    Hive.box(KeysConstant.sessionBox).delete(KeysConstant.loggedInUserIndex);
+    Hive.box(KeysConstant.sessionBox).delete(KeysConstant.userType);
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => const Login()),
@@ -102,15 +100,10 @@ class _DonorProfileState extends State<DonorProfile> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery
-        .of(context)
-        .size
-        .width;
-
     return Scaffold(
+      backgroundColor: Colors.white,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -131,8 +124,6 @@ class _DonorProfileState extends State<DonorProfile> {
                 ),
               ),
             ),
-
-            // Profile picture
             GestureDetector(
               onTap: _pickImage,
               child: CircleAvatar(
@@ -146,7 +137,6 @@ class _DonorProfileState extends State<DonorProfile> {
               ),
             ),
             const SizedBox(height: 30),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Form(
@@ -162,8 +152,6 @@ class _DonorProfileState extends State<DonorProfile> {
                     _buildStyledTextField(
                         _passwordController, "Password", obscureText: true),
                     const SizedBox(height: 30),
-
-                    // Save button aligned right
                     Align(
                       alignment: Alignment.centerRight,
                       child: ElevatedButton(
@@ -183,7 +171,6 @@ class _DonorProfileState extends State<DonorProfile> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
                     ElevatedButton(
                       onPressed: () {
                         showDialog(
@@ -203,12 +190,8 @@ class _DonorProfileState extends State<DonorProfile> {
                               ElevatedButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-
-                                  // Log donor out
-                                  Hive.box('session').delete('loggedInUserIndex');
-                                  Hive.box('session').delete('userType');
-
-                                  // Navigate to AgentRegister with donor info
+                                  Hive.box(KeysConstant.sessionBox).delete(KeysConstant.loggedInUserIndex);
+                                  Hive.box(KeysConstant.sessionBox).delete(KeysConstant.userType);
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
@@ -231,7 +214,6 @@ class _DonorProfileState extends State<DonorProfile> {
                           ),
                         );
                       },
-
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: const Color(0xFFFF863B),
@@ -246,10 +228,7 @@ class _DonorProfileState extends State<DonorProfile> {
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                     ),
-
                     const SizedBox(height: 16),
-
-                    // Logout button
                     ElevatedButton(
                       onPressed: _logout,
                       style: ElevatedButton.styleFrom(

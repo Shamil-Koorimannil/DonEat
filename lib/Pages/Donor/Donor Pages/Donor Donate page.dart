@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
+import '../../../Concense/keys_consence.dart';
 import '../../../Models/DonEat_model.dart';
 import '../Donor Widgets/header.dart';
+import 'ChatScreen.dart';
 
 class Donate extends StatefulWidget {
-  const Donate({super.key});
+  final Function(Donation) onDonationSaved;
+  const Donate({super.key, required this.onDonationSaved});
 
   @override
   State<Donate> createState() => _DonateState();
@@ -16,7 +19,6 @@ class Donate extends StatefulWidget {
 
 class _DonateState extends State<Donate> {
   final _formKey = GlobalKey<FormState>();
-
   final foodController = TextEditingController();
   final locationController = TextEditingController();
   final dateController = TextEditingController();
@@ -26,7 +28,6 @@ class _DonateState extends State<Donate> {
   double _sliderValue = 50;
   bool _agree = false;
   final ImagePicker _picker = ImagePicker();
-
   List<File?> _selectedImages = [null, null, null];
 
   Future<void> _pickImage(int index) async {
@@ -75,14 +76,9 @@ class _DonateState extends State<Donate> {
   }
 
   void _saveDonation() async {
-    if (!_validateForm()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all fields and upload at least 1 image")),
-      );
-      return;
-    }
+    if (!_validateForm()) return;
 
-    final box = Hive.box<Donation>('donations');
+    String donationId = 'donation_${DateTime.now().millisecondsSinceEpoch}';
 
     final donation = Donation(
       foodName: foodController.text,
@@ -95,25 +91,39 @@ class _DonateState extends State<Donate> {
           .where((img) => img != null)
           .map((img) => img!.path)
           .toList(),
+      donationId: donationId,
     );
 
+    final box = Hive.box<Donation>(KeysConstant.donationsBox);
     await box.add(donation);
+    await _addInitialChatMessages(donationId);
+    widget.onDonationSaved(donation);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Donation saved ✅")),
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => ChatScreen(donation: donation)),
+          (route) => false,
     );
+  }
 
-    // reset form
-    foodController.clear();
-    locationController.clear();
-    dateController.clear();
-    timeController.clear();
-    contactController.clear();
-    setState(() {
-      _sliderValue = 50;
-      _agree = false;
-      _selectedImages = [null, null, null];
-    });
+  Future<void> _addInitialChatMessages(String donationId) async {
+    final chatBox = Hive.box<ChatMessage>(KeysConstant.chatMessagesBox);
+
+    await chatBox.add(ChatMessage(
+      donationId: donationId,
+      senderId: KeysConstant.systemSenderId,
+      message: "Thank you for your donation! Your food listing has been received successfully.",
+      timestamp: DateTime.now(),
+      senderName: "AI",
+    ));
+
+    await chatBox.add(ChatMessage(
+      donationId: donationId,
+      senderId: KeysConstant.systemSenderId,
+      message: "An agent will contact you shortly to coordinate the pickup. Please wait for their message.",
+      timestamp: DateTime.now().add(const Duration(seconds: 1)),
+      senderName: "AI",
+    ));
   }
 
   InputDecoration _inputDecoration(String hint) {
@@ -158,9 +168,9 @@ class _DonateState extends State<Donate> {
     final isFormValid = _validateForm();
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Column(
         children: [
-
           ClipPath(
             clipper: DonorHead(),
             child: Container(
@@ -187,13 +197,11 @@ class _DonateState extends State<Donate> {
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 10),
                   ],
                 ),
               ),
             ),
           ),
-
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
@@ -208,14 +216,12 @@ class _DonateState extends State<Donate> {
                       validator: (v) => v!.isEmpty ? "Required" : null,
                     ),
                     const SizedBox(height: 12),
-
                     TextFormField(
                       controller: locationController,
                       decoration: _inputDecoration("Pickup location"),
                       validator: (v) => v!.isEmpty ? "Required" : null,
                     ),
                     const SizedBox(height: 12),
-
                     TextFormField(
                       controller: dateController,
                       readOnly: true,
@@ -223,7 +229,6 @@ class _DonateState extends State<Donate> {
                       onTap: _pickDate,
                     ),
                     const SizedBox(height: 12),
-
                     TextFormField(
                       controller: timeController,
                       readOnly: true,
@@ -231,7 +236,6 @@ class _DonateState extends State<Donate> {
                       onTap: _pickTime,
                     ),
                     const SizedBox(height: 12),
-
                     TextFormField(
                       controller: contactController,
                       decoration: _inputDecoration("Contact number"),
@@ -241,7 +245,6 @@ class _DonateState extends State<Donate> {
                         LengthLimitingTextInputFormatter(10),
                       ],
                     ),
-
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -258,7 +261,6 @@ class _DonateState extends State<Donate> {
                         ),
                       ],
                     ),
-
                     Slider(
                       value: _sliderValue,
                       min: 5,
@@ -270,7 +272,6 @@ class _DonateState extends State<Donate> {
                         setState(() => _sliderValue = val);
                       },
                     ),
-
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -281,7 +282,6 @@ class _DonateState extends State<Donate> {
                         );
                       }),
                     ),
-
                     const SizedBox(height: 20),
                     Row(
                       children: [
@@ -300,7 +300,6 @@ class _DonateState extends State<Donate> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
@@ -308,8 +307,7 @@ class _DonateState extends State<Donate> {
                       child: ElevatedButton(
                         onPressed: isFormValid ? _saveDonation : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                          isFormValid ? const Color(0xFFFF863B) : Colors.grey,
+                          backgroundColor: isFormValid ? const Color(0xFFFF863B) : Colors.grey,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -317,7 +315,10 @@ class _DonateState extends State<Donate> {
                         child: const Text(
                           "Donate",
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
