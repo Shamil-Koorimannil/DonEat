@@ -306,7 +306,7 @@ class _AgentHomeState extends State<AgentHome>
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.green,
+        color: Colors.grey,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
@@ -345,7 +345,7 @@ class _AgentHomeState extends State<AgentHome>
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.chat, color: Colors.green, size: 20),
+                  icon: const Icon(Icons.chat, color: Colors.grey, size: 20),
                   onPressed: () {
                     Navigator.push(
                       context,

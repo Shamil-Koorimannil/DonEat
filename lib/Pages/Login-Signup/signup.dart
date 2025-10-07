@@ -117,20 +117,33 @@ class _SignupState extends State<Signup> {
                     TextFormField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(labelText: "Phone",
+                      maxLength: 10, // Limits input to 10 characters
+                      decoration: InputDecoration(
+                        labelText: "Phone",
+                        counterText: "", // Hides the character counter
                         enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Color(0xFFFF863B), width: 1.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: Color(0xFFFF863B), width: 2),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Color(0xFFFF863B), width: 2),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        errorBorder: OutlineInputBorder(borderSide: const BorderSide(color: Colors.red, width: 2.0),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.red, width: 2.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                       ),
-                      validator: (value) => value == null || value.isEmpty ? "Enter phone number" : null,
-
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Enter phone number";
+                        } else if (value.length != 10) {
+                          return "Phone number must be 10 digits";
+                        } else if (!value.contains(RegExp(r'^[0-9]+$'))) {
+                          return "Phone number must contain only digits";
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 20),
                     TextFormField(

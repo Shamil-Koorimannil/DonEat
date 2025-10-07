@@ -29,10 +29,6 @@ class _DeliveryPageState extends State<DeliveryPage> {
     });
   }
 
-  void _refreshDonations() {
-    _loadAvailableDonations();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,29 +59,6 @@ class _DeliveryPageState extends State<DeliveryPage> {
             ),
           ),
           const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _refreshDonations,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF863B),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  icon: const Icon(Icons.refresh, color: Colors.white, size: 20),
-                  label: const Text(
-                    "Refresh",
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
           Expanded(
             child: availableDonations.isEmpty
                 ? const Center(
@@ -123,7 +96,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
           MaterialPageRoute(
             builder: (context) => AgentDonationDetails(
               donation: donation,
-              onStatusChanged: _refreshDonations,
+              onStatusChanged: _loadAvailableDonations,
             ),
           ),
         );
@@ -176,46 +149,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
                 ],
               ),
             ),
-            Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Text(
-                    "Nearby",
-                    style: TextStyle(
-                      color: Color(0xFFFF863B),
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_forward, color: Color(0xFFFF863B)),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AgentDonationDetails(
-                            donation: donation,
-                            onStatusChanged: _refreshDonations,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+            const Icon(Icons.arrow_forward, color: Colors.white, size: 30),
           ],
         ),
       ),

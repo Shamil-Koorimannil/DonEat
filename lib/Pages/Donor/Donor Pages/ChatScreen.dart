@@ -112,9 +112,7 @@ class _ChatScreenState extends State<ChatScreen> {
       final chatBox = Hive.box<ChatMessage>(KeysConstant.chatMessagesBox);
 
       _messages = chatBox.values
-          .where((message) => message.donationId == widget.donation.donationId)
-          .toList()
-        ..sort((a, b) => (a.timestamp ?? DateTime.now()).compareTo(b.timestamp ?? DateTime.now()));
+          .where((message) => message.donationId == widget.donation.donationId).toList()..sort((a, b) => (a.timestamp ?? DateTime.now()).compareTo(b.timestamp ?? DateTime.now()));
 
       setState(() {});
     } catch (e) {
@@ -173,6 +171,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   String _getDisplayName(ChatMessage message) {
+    if (message.senderId?.contains('system') == true || message.senderType == 'system') {
+      return message.senderName ?? 'System';
+    }
+
     if (message.senderId == _currentUserId) {
       return 'You';
     }
@@ -382,10 +384,10 @@ class ChatBubble extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: isUser ? const Color(0xFFFF7C2A) : Colors.blue,
                       borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(20),
-                        topRight: const Radius.circular(20),
-                        bottomLeft: isUser ? const Radius.circular(20) : const Radius.circular(4),
-                        bottomRight: isUser ? const Radius.circular(4) : const Radius.circular(20),
+                        topLeft: isUser ?  const Radius.circular(20) : const Radius.circular(4),
+                        topRight: isUser ?  const Radius.circular(4) : const Radius.circular(20),
+                        bottomLeft:const Radius.circular(20),
+                        bottomRight: const Radius.circular(20),
                       ),
                     ),
                     child: Text(
@@ -417,21 +419,28 @@ class ChatBubble extends StatelessWidget {
   }
 
   Widget _buildAvatar(bool isUser) {
+    final isSystemMessage = !isUser && senderName == 'System';
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         children: [
           CircleAvatar(
             radius: 20,
-            backgroundColor: isUser ? const Color(0xFFFF7C2A) : Colors.blue,
-            child: Icon( Icons.person,
+            backgroundColor: isUser
+                ? const Color(0xFFFF7C2A)
+                : (isSystemMessage ? Colors.green : Colors.blue),
+            child: Icon(
+              isUser
+                  ? Icons.person
+                  : (isSystemMessage ? Icons.headset_mic_outlined : Icons.person),
               color: Colors.white,
               size: 20,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            isUser ? 'You' : (otherUserName ?? 'User'),
+            isUser ? 'You' : senderName,
             style: const TextStyle(
               fontSize: 10,
               color: Colors.black54,

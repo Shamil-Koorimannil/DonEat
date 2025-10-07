@@ -121,18 +121,20 @@ class _DonateState extends State<Donate> {
 
     await chatBox.add(ChatMessage(
       donationId: donationId,
-      senderId: 'system',
+      senderId: 'system_ai',
       message: "Thank you for your donation! Your food listing has been received successfully.",
       timestamp: DateTime.now(),
-      senderName: "AI",
+      senderName: "System",
+      senderType: 'system',
     ));
 
     await chatBox.add(ChatMessage(
       donationId: donationId,
-      senderId: 'system',
+      senderId: 'system_ai',
       message: "An agent will contact you shortly to coordinate the pickup. Please wait for their message.",
       timestamp: DateTime.now().add(const Duration(seconds: 1)),
-      senderName: "AI",
+      senderName: "System",
+      senderType: 'system',
     ));
   }
 

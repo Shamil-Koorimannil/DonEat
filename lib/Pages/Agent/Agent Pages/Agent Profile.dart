@@ -162,6 +162,68 @@ class _AgentProfileState extends State<AgentProfile> {
     }
   }
 
+  void _logoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Logout"),
+        content: const Text("Are you sure you want to logout?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel", style: TextStyle(color: Color(0xFFFF863B))),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _logout();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF863B),
+            ),
+            child: const Text("Logout", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _becomeDonorDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Become a Donor"),
+        content: const Text("Are you sure you want to become a donor? Your agent account will be converted to a donor account."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel", style: TextStyle(color: Color(0xFFFF863B))),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _becomeDonor();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF863B),
+            ),
+            child: const Text("Yes", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _logout() {
+    Hive.box(KeysConstant.sessionBox).delete(KeysConstant.loggedInUserIndex);
+    Hive.box(KeysConstant.sessionBox).delete(KeysConstant.userType);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const Login()),
+          (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,9 +241,7 @@ class _AgentProfileState extends State<AgentProfile> {
                   child: Column(
                     children: const [
                       SizedBox(height: 20),
-                      Text(
-                        'Profile',
-                        style: TextStyle(
+                      Text('Profile', style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -295,7 +355,7 @@ class _AgentProfileState extends State<AgentProfile> {
                     ),
                     const SizedBox(height: 15),
                     ElevatedButton(
-                      onPressed: _becomeDonor,
+                      onPressed: _becomeDonorDialog,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: const Color(0xFFFF863B),
@@ -309,14 +369,7 @@ class _AgentProfileState extends State<AgentProfile> {
                     ),
                     const SizedBox(height: 15),
                     ElevatedButton(
-                      onPressed: () {
-                        Hive.box(KeysConstant.sessionBox).delete(KeysConstant.loggedInUserIndex);
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (_) => const Login()),
-                              (route) => false,
-                        );
-                      },
+                      onPressed: _logoutDialog,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF863B),
                         minimumSize: const Size.fromHeight(50),
@@ -359,3 +412,4 @@ class _AgentProfileState extends State<AgentProfile> {
     );
   }
 }
+
