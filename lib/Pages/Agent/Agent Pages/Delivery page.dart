@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import '../../../Concense/keys_consence.dart';
 import '../../../Models/DonEat_model.dart';
 import '../Agent Widgets/header.dart';
 import 'Donation Details.dart';
@@ -22,10 +21,10 @@ class _DeliveryPageState extends State<DeliveryPage> {
   }
 
   void _loadAvailableDonations() {
-    final donationsBox = Hive.box<Donation>(KeysConstant.donationsBox);
+    final donationsBox = Hive.box<Donation>('donations');
     setState(() {
       availableDonations = donationsBox.values
-          .where((donation) => donation.status == KeysConstant.availableStatus)
+          .where((donation) => donation.status == "available")
           .toList();
     });
   }
@@ -151,7 +150,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Food: ${donation.foodName}',
+                    'Food: ${donation.foodName ?? 'No Food Name'}',
                     style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -161,17 +160,17 @@ class _DeliveryPageState extends State<DeliveryPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Location: ${donation.location}',
+                    'Location: ${donation.location ?? 'No Location'}',
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Time: ${donation.date} ${donation.time}',
+                    'Time: ${donation.date ?? 'No Date'} ${donation.time ?? 'No Time'}',
                     style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Contact: ${donation.contact}',
+                    'Contact: ${donation.contact ?? 'No Contact'}',
                     style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ],

@@ -88,15 +88,15 @@ class _AgentDonationDetailsState extends State<AgentDonationDetails> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildDetailRow("Food Name", widget.donation.foodName),
+                      _buildDetailRow("Food Name", widget.donation.foodName ?? 'Not provided'),
                       const SizedBox(height: 15),
-                      _buildDetailRow("Pickup Location", widget.donation.location),
+                      _buildDetailRow("Pickup Location", widget.donation.location ?? 'Not provided'),
                       const SizedBox(height: 15),
-                      _buildDetailRow("Pickup Date", widget.donation.date),
+                      _buildDetailRow("Pickup Date", widget.donation.date ?? 'Not provided'),
                       const SizedBox(height: 15),
-                      _buildDetailRow("Pickup Time", widget.donation.time),
+                      _buildDetailRow("Pickup Time", widget.donation.time ?? 'Not provided'),
                       const SizedBox(height: 15),
-                      _buildDetailRow("Contact", widget.donation.contact),
+                      _buildDetailRow("Contact", widget.donation.contact ?? 'Not provided'),
                       const SizedBox(height: 15),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -110,7 +110,7 @@ class _AgentDonationDetailsState extends State<AgentDonationDetails> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              "${widget.donation.quantity}",
+                              "${widget.donation.quantity ?? 0}",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -156,19 +156,19 @@ class _AgentDonationDetailsState extends State<AgentDonationDetails> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(widget.donation.status),
+                          color: _getStatusColor(widget.donation.status ?? 'available'),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              _getStatusIcon(widget.donation.status),
+                              _getStatusIcon(widget.donation.status ?? 'available'),
                               color: Colors.white,
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              "Status: ${_getStatusText(widget.donation.status)}",
+                              "Status: ${_getStatusText(widget.donation.status ?? 'available')}",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -179,7 +179,7 @@ class _AgentDonationDetailsState extends State<AgentDonationDetails> {
                         ),
                       ),
                       const SizedBox(height: 30),
-                      if (widget.donation.status == KeysConstant.availableStatus)
+                      if ((widget.donation.status ?? 'available') == KeysConstant.availableStatus)
                         Column(
                           children: [
                             SizedBox(
@@ -204,30 +204,9 @@ class _AgentDonationDetailsState extends State<AgentDonationDetails> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 50,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                ),
-                                onPressed: _rejectDonation,
-                                child: const Text(
-                                  "Reject",
-                                  style: TextStyle(
-                                    color: Color(0xFFFF863B),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
                           ],
                         )
-                      else if (widget.donation.status == KeysConstant.acceptedStatus)
+                      else if ((widget.donation.status ?? 'available') == KeysConstant.acceptedStatus)
                         Column(
                           children: [
                             SizedBox(
@@ -282,7 +261,7 @@ class _AgentDonationDetailsState extends State<AgentDonationDetails> {
                             ),
                           ],
                         )
-                      else if (widget.donation.status == KeysConstant.completedStatus)
+                      else if ((widget.donation.status ?? 'available') == KeysConstant.completedStatus)
                           Column(
                             children: [
                               Container(

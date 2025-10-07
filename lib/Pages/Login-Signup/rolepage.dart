@@ -38,9 +38,7 @@ class _RoleState extends State<Role> {
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 160),
-                  child: const Text(
-                    "Choose Your Role",
-                    style: TextStyle(
+                  child: const Text("Choose Your Role", style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -98,9 +96,7 @@ class _RoleState extends State<Role> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: const Text(
-                  "Choose",
-                  style: TextStyle(color: Colors.white, fontSize: 18),
+                child: const Text("Choose", style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
               ),
             ],

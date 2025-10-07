@@ -1,5 +1,9 @@
 import 'package:doneat/Pages/Login-Signup/rolepage.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+
+import '../../Models/DonEat_model.dart';
+import '../Donor/Donor Widgets/header.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -24,14 +28,32 @@ class _SignupState extends State<Signup> {
         );
         return;
       }
-      Navigator.push(context, MaterialPageRoute(builder: (context)=> Role(
-          name: _nameController.text,
-          email: _emailController.text,
-          phone: _phoneController.text,
-          password: _passwordController.text
-      )));
+      var donorBox = await Hive.openBox<Donor>('donors');
+      var agentBox = await Hive.openBox<Agent>('agents');
+      bool emailExists = donorBox.values.any((d) => d.email == _emailController.text) ||
+          agentBox.values.any((a) => a.email == _emailController.text);
+
+      if (emailExists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Email already registered!')),
+        );
+        return;
+      }
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Role(
+            name: _nameController.text,
+            email: _emailController.text,
+            phone: _phoneController.text,
+            password: _passwordController.text,
+          ),
+        ),
+      );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -40,15 +62,13 @@ class _SignupState extends State<Signup> {
         child: Column(
           children: [
             ClipPath(
-              clipper: SignupHead(),
+              clipper: DonorHead(),
               child: Container(
                 height: 250,
                 width: double.infinity,
                 color: const Color(0xFFFF863B),
                 child: const Center(
-                  child: Text(
-                    'Sign Up',
-                    style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold, color: Colors.white),
+                  child: Text('Sign Up', style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ),
               ),
@@ -63,16 +83,13 @@ class _SignupState extends State<Signup> {
                       controller: _nameController,
                       decoration: InputDecoration(
                         labelText: "Name",
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xFFFF863B), width: 1.0),
+                        enabledBorder: OutlineInputBorder(borderSide: const BorderSide(color: Color(0xFFFF863B), width: 1.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xFFFF863B), width: 2.0),
+                        focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: Color(0xFFFF863B), width: 2.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.red, width: 2.0),
+                        errorBorder: OutlineInputBorder(borderSide: const BorderSide(color: Colors.red, width: 2.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                       ),
@@ -81,93 +98,75 @@ class _SignupState extends State<Signup> {
                     const SizedBox(height: 20),
                     TextFormField(
                       controller: _emailController,
-                      decoration: InputDecoration(
-                        labelText: "Email",
+                      decoration: InputDecoration(labelText: "Email",
                         enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Color(0xFFFF863B), width: 1.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xFFFF863B), width: 2.0),
+                        focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: Color(0xFFFF863B), width: 2.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.red, width: 2.0),
+                        errorBorder: OutlineInputBorder(borderSide: const BorderSide(color: Colors.red, width: 2.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                       ),
-                      validator: (value) => value == null || value.isEmpty || !value.contains("@")
-                          ? "Enter valid email"
-                          : null,
+                      validator: (value) => value == null || value.isEmpty || !value.contains("@") ? "Enter valid email" : null,
+
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        labelText: "Phone",
+                      decoration: InputDecoration(labelText: "Phone",
                         enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Color(0xFFFF863B), width: 1.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xFFFF863B), width: 2),
+                        focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: Color(0xFFFF863B), width: 2),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.red, width: 2.0),
+                        errorBorder: OutlineInputBorder(borderSide: const BorderSide(color: Colors.red, width: 2.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                       ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? "Enter phone number"
-                          : null,
+                      validator: (value) => value == null || value.isEmpty ? "Enter phone number" : null,
+
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: "Password",
+                      decoration: InputDecoration(labelText: "Password",
                         enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Color(0xFFFF863B), width: 1.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xFFFF863B), width: 2.0),
+                        focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: Color(0xFFFF863B), width: 2.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.red, width: 2.0),
+                        errorBorder: OutlineInputBorder(borderSide: const BorderSide(color: Colors.red, width: 2.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                       ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? "Enter password"
-                          : null,
+                      validator: (value) => value == null || value.isEmpty ? "Enter password" : null,
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
                       controller: _confirmPasswordController,
                       obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: "Confirm Password",
+                      decoration: InputDecoration(labelText: "Confirm Password",
                         enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Color(0xFFFF863B), width: 1.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xFFFF863B), width: 2.0),
+                        focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: Color(0xFFFF863B), width: 2.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.red, width: 2.0),
+                        errorBorder: OutlineInputBorder(borderSide: const BorderSide(color: Colors.red, width: 2.0),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                       ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? "Confirm your password"
-                          : null,
+                      validator: (value) => value == null || value.isEmpty ? "Confirm your password" : null,
                     ),
                     const SizedBox(height: 30),
                     Row(
@@ -175,8 +174,7 @@ class _SignupState extends State<Signup> {
                       children: [
                         ElevatedButton(
                           onPressed: _registerUser,
-                          style: ElevatedButton.styleFrom(
-                            fixedSize: const Size(150, 50),
+                          style: ElevatedButton.styleFrom(fixedSize: const Size(150, 50),
                             backgroundColor: const Color(0xFFFF863B),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
@@ -206,29 +204,4 @@ class _SignupState extends State<Signup> {
       ),
     );
   }
-}
-
-class SignupHead extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    Path path = Path();
-    path.lineTo(0, size.height);
-
-    path.quadraticBezierTo(
-      size.width * 0.35, size.height * 0.60,
-      size.width * 0.5, size.height * 0.65,
-    );
-
-    path.quadraticBezierTo(
-      size.width * 0.70, size.height * 0.75,
-      size.width, 0,
-    );
-
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => true;
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import '../../../Concense/keys_consence.dart';
 import '../../../Models/DonEat_model.dart';
 import '../Donor Widgets/bottom_nav.dart';
 import '../Donor Widgets/header.dart';
@@ -33,14 +32,36 @@ class _DonorHomeState extends State<DonorHome>
   }
 
   Future<void> _loadDonations() async {
-    final box = Hive.box<Donation>(KeysConstant.donationsBox);
+    final box = Hive.box<Donation>('donations');
+    final sessionBox = Hive.box('session');
+    final donorsBox = Hive.box<Donor>('donors');
+
+    int? currentDonorIndex = sessionBox.get('loggedInUserIndex');
+    Donor? currentDonor;
+
+    if (currentDonorIndex != null && currentDonorIndex < donorsBox.length) {
+      currentDonor = donorsBox.getAt(currentDonorIndex);
+    }
+
     final allDonations = box.values.toList();
 
     setState(() {
-      onlineDonations = allDonations.where((donation) =>
-      donation.status == KeysConstant.availableStatus || donation.status == KeysConstant.acceptedStatus).toList();
-      previousDonations = allDonations.where((donation) =>
-      donation.status == KeysConstant.completedStatus).toList();
+      if (currentDonor != null) {
+        onlineDonations = allDonations.where((donation) =>
+        (donation.status == "available" || donation.status == "accepted") &&
+            donation.donorEmail == currentDonor!.email
+        ).toList();
+
+        previousDonations = allDonations.where((donation) =>
+        donation.status == "completed" &&
+            donation.donorEmail == currentDonor!.email
+        ).toList();
+      } else {
+        onlineDonations = allDonations.where((donation) =>
+        donation.status == "available" || donation.status == "accepted").toList();
+        previousDonations = allDonations.where((donation) =>
+        donation.status == "completed").toList();
+      }
     });
   }
 
@@ -212,35 +233,35 @@ class _DonorHomeState extends State<DonorHome>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Food: ${donation.foodName}',
+                      'Food: ${donation.foodName ?? 'Not specified'}',
                       style: const TextStyle(color: Colors.white, fontSize: 16),
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      'Quantity: ${donation.quantity} people',
+                      'Quantity: ${donation.quantity ?? 0} people',
                       style: const TextStyle(color: Colors.white, fontSize: 16),
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      'Location: ${donation.location}',
+                      'Location: ${donation.location ?? 'Not specified'}',
                       style: const TextStyle(color: Colors.white, fontSize: 14),
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      'Time: ${donation.date} ${donation.time}',
+                      'Time: ${donation.date ?? ''} ${donation.time ?? ''}',
                       style: const TextStyle(color: Colors.white, fontSize: 14),
                     ),
-                    if (donation.status == KeysConstant.availableStatus)
+                    if (donation.status == "available")
                       const Text(
                         'Status: Waiting for Agent',
                         style: TextStyle(color: Colors.white, fontSize: 12, fontStyle: FontStyle.italic),
                       ),
-                    if (donation.status == KeysConstant.acceptedStatus)
+                    if (donation.status == "accepted")
                       const Text(
                         'Status: Accepted by Agent',
                         style: TextStyle(color: Colors.white, fontSize: 12, fontStyle: FontStyle.italic),
                       ),
-                    if (donation.status == KeysConstant.completedStatus)
+                    if (donation.status == "completed")
                       const Text(
                         'Status: Completed',
                         style: TextStyle(color: Colors.white, fontSize: 12, fontStyle: FontStyle.italic),
@@ -254,38 +275,15 @@ class _DonorHomeState extends State<DonorHome>
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
+
                     ),
                     child: IconButton(
-                      icon: Icon(
-                        isOnline ? Icons.chat : Icons.visibility,
-                        color: const Color(0xFFFF863B),
-                      ),
-                      onPressed: () {
-                        if (isOnline) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatScreen(donation: donation),
-                            ),
-                          );
-                        } else {
-                          _showDonationDetails(donation);
-                        }
-                      },
+                      icon: const Icon(Icons.arrow_forward_outlined, color: Color(0xFFFF863B), size: 20),
+                      onPressed: () => _showDonationDetails(donation),
                     ),
+
                   ),
-                  const SizedBox(height: 8),
-                  if (isOnline && donation.status == KeysConstant.availableStatus)
-                    Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white, size: 20),
-                        onPressed: () => _cancelDonation(donation, index),
-                      ),
-                    ),
+
                 ],
               ),
             ],
@@ -315,14 +313,14 @@ class _DonorHomeState extends State<DonorHome>
     );
 
     if (confirmed == true) {
-      final donationsBox = Hive.box<Donation>(KeysConstant.donationsBox);
+      final donationsBox = Hive.box<Donation>('donations');
 
       final donationsList = donationsBox.values.toList();
       final donationIndex = donationsList.indexWhere((d) => d.donationId == donation.donationId);
 
       if (donationIndex != -1) {
         await donationsBox.deleteAt(donationIndex);
-        await _deleteChatMessages(donation.donationId);
+        await _deleteChatMessages(donation.donationId!);
 
         setState(() {
           onlineDonations.removeAt(index);
@@ -336,7 +334,7 @@ class _DonorHomeState extends State<DonorHome>
   }
 
   Future<void> _deleteChatMessages(String donationId) async {
-    final chatBox = Hive.box<ChatMessage>(KeysConstant.chatMessagesBox);
+    final chatBox = Hive.box<ChatMessage>('chatMessages');
     final messagesToDelete = chatBox.values
         .where((message) => message.donationId == donationId)
         .toList();

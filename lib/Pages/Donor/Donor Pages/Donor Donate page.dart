@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
-import '../../../Concense/keys_consence.dart';
 import '../../../Models/DonEat_model.dart';
 import '../Donor Widgets/header.dart';
 import 'ChatScreen.dart';
@@ -78,6 +77,15 @@ class _DonateState extends State<Donate> {
   void _saveDonation() async {
     if (!_validateForm()) return;
 
+    final sessionBox = Hive.box('session');
+    final donorsBox = Hive.box<Donor>('donors');
+    int? currentDonorIndex = sessionBox.get('loggedInUserIndex');
+    Donor? currentDonor;
+
+    if (currentDonorIndex != null && currentDonorIndex < donorsBox.length) {
+      currentDonor = donorsBox.getAt(currentDonorIndex);
+    }
+
     String donationId = 'donation_${DateTime.now().millisecondsSinceEpoch}';
 
     final donation = Donation(
@@ -92,9 +100,11 @@ class _DonateState extends State<Donate> {
           .map((img) => img!.path)
           .toList(),
       donationId: donationId,
+      donorId: currentDonor?.email,
+      donorEmail: currentDonor?.email,
     );
 
-    final box = Hive.box<Donation>(KeysConstant.donationsBox);
+    final box = Hive.box<Donation>('donations');
     await box.add(donation);
     await _addInitialChatMessages(donationId);
     widget.onDonationSaved(donation);
@@ -107,11 +117,11 @@ class _DonateState extends State<Donate> {
   }
 
   Future<void> _addInitialChatMessages(String donationId) async {
-    final chatBox = Hive.box<ChatMessage>(KeysConstant.chatMessagesBox);
+    final chatBox = Hive.box<ChatMessage>('chatMessages');
 
     await chatBox.add(ChatMessage(
       donationId: donationId,
-      senderId: KeysConstant.systemSenderId,
+      senderId: 'system',
       message: "Thank you for your donation! Your food listing has been received successfully.",
       timestamp: DateTime.now(),
       senderName: "AI",
@@ -119,7 +129,7 @@ class _DonateState extends State<Donate> {
 
     await chatBox.add(ChatMessage(
       donationId: donationId,
-      senderId: KeysConstant.systemSenderId,
+      senderId: 'system',
       message: "An agent will contact you shortly to coordinate the pickup. Please wait for their message.",
       timestamp: DateTime.now().add(const Duration(seconds: 1)),
       senderName: "AI",

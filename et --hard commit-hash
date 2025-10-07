@@ -1,0 +1,9 @@
+[33m97d93cb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Project completed, now time for testing
+[33mcc1b9bf[m Donor side all done except chat. moving to agent side
+[33mf75fcbf[m created a seperate folder to contain keys
+[33mae3a2f5[m Login and signup completed
+[33m1c30908[m Login and sign up of donor is done, now for agent and role page
+[33med34966[m Some minor ui changes needed in sign up
+[33ma031d45[m Login and register auth working on it
+[33m86c7fd1[m Login screen halfely completed
+[33md24b2bc[m first commit

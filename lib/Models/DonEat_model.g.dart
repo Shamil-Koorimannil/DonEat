@@ -8,7 +8,7 @@ part of 'DonEat_model.dart';
 
 class DonorAdapter extends TypeAdapter<Donor> {
   @override
-  final int typeId = 10;
+  final int typeId = 0;
 
   @override
   Donor read(BinaryReader reader) {
@@ -54,7 +54,7 @@ class DonorAdapter extends TypeAdapter<Donor> {
 
 class AgentAdapter extends TypeAdapter<Agent> {
   @override
-  final int typeId = 11;
+  final int typeId = 1;
 
   @override
   Agent read(BinaryReader reader) {
@@ -67,9 +67,9 @@ class AgentAdapter extends TypeAdapter<Agent> {
       email: fields[1] as String?,
       phone: fields[2] as String?,
       password: fields[3] as String?,
-      profilePhotoPath: fields[6] as String?,
-      vehicleType: fields[4] as String?,
-      capacity: fields[5] as int?,
+      profilePhotoPath: fields[4] as String?,
+      vehicleType: fields[5] as String?,
+      capacity: fields[6] as int?,
     );
   }
 
@@ -86,11 +86,11 @@ class AgentAdapter extends TypeAdapter<Agent> {
       ..writeByte(3)
       ..write(obj.password)
       ..writeByte(4)
-      ..write(obj.vehicleType)
+      ..write(obj.profilePhotoPath)
       ..writeByte(5)
-      ..write(obj.capacity)
+      ..write(obj.vehicleType)
       ..writeByte(6)
-      ..write(obj.profilePhotoPath);
+      ..write(obj.capacity);
   }
 
   @override
@@ -106,7 +106,7 @@ class AgentAdapter extends TypeAdapter<Agent> {
 
 class DonationAdapter extends TypeAdapter<Donation> {
   @override
-  final int typeId = 12;
+  final int typeId = 2;
 
   @override
   Donation read(BinaryReader reader) {
@@ -115,23 +115,26 @@ class DonationAdapter extends TypeAdapter<Donation> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Donation(
-      foodName: fields[0] as String,
-      location: fields[1] as String,
-      date: fields[2] as String,
-      time: fields[3] as String,
-      contact: fields[4] as String,
-      quantity: fields[5] as int,
-      donationId: fields[9] as String,
+      foodName: fields[0] as String?,
+      location: fields[1] as String?,
+      date: fields[2] as String?,
+      time: fields[3] as String?,
+      contact: fields[4] as String?,
+      quantity: fields[5] as int?,
       imagePaths: (fields[6] as List?)?.cast<String>(),
-      status: fields[7] as String,
-      acceptedByAgentId: fields[8] as String?,
+      donationId: fields[7] as String?,
+      status: fields[8] as String?,
+      acceptedByAgentId: fields[9] as String?,
+      donorId: fields[10] as String?,
+      donorEmail: fields[11] as String?,
+      agentEmail: fields[12] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Donation obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.foodName)
       ..writeByte(1)
@@ -147,11 +150,17 @@ class DonationAdapter extends TypeAdapter<Donation> {
       ..writeByte(6)
       ..write(obj.imagePaths)
       ..writeByte(7)
-      ..write(obj.status)
+      ..write(obj.donationId)
       ..writeByte(8)
-      ..write(obj.acceptedByAgentId)
+      ..write(obj.status)
       ..writeByte(9)
-      ..write(obj.donationId);
+      ..write(obj.acceptedByAgentId)
+      ..writeByte(10)
+      ..write(obj.donorId)
+      ..writeByte(11)
+      ..write(obj.donorEmail)
+      ..writeByte(12)
+      ..write(obj.agentEmail);
   }
 
   @override
@@ -167,7 +176,7 @@ class DonationAdapter extends TypeAdapter<Donation> {
 
 class ChatMessageAdapter extends TypeAdapter<ChatMessage> {
   @override
-  final int typeId = 13;
+  final int typeId = 3;
 
   @override
   ChatMessage read(BinaryReader reader) {
@@ -176,18 +185,20 @@ class ChatMessageAdapter extends TypeAdapter<ChatMessage> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return ChatMessage(
-      donationId: fields[0] as String,
-      senderId: fields[1] as String,
-      message: fields[2] as String,
-      timestamp: fields[3] as DateTime,
-      senderName: fields[4] as String,
+      donationId: fields[0] as String?,
+      senderId: fields[1] as String?,
+      message: fields[2] as String?,
+      timestamp: fields[3] as DateTime?,
+      senderName: fields[4] as String?,
+      senderType: fields[5] as String?,
+      senderEmail: fields[6] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ChatMessage obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.donationId)
       ..writeByte(1)
@@ -197,7 +208,11 @@ class ChatMessageAdapter extends TypeAdapter<ChatMessage> {
       ..writeByte(3)
       ..write(obj.timestamp)
       ..writeByte(4)
-      ..write(obj.senderName);
+      ..write(obj.senderName)
+      ..writeByte(5)
+      ..write(obj.senderType)
+      ..writeByte(6)
+      ..write(obj.senderEmail);
   }
 
   @override

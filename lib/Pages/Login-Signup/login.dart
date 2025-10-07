@@ -85,19 +85,6 @@ class _LoginState extends State<Login> {
     }
   }
 
-  Future<void> _debugAllAccounts() async {
-    var agentBox = Hive.box<Agent>(KeysConstant.agentsBox);
-    var donorBox = Hive.box<Donor>(KeysConstant.donorsBox);
-
-    for (int i = 0; i < agentBox.length; i++) {
-      var agent = agentBox.getAt(i);
-    }
-
-    for (int i = 0; i < donorBox.length; i++) {
-      var donor = donorBox.getAt(i);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

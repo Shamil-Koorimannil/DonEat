@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import '../../../Models/DonEat_model.dart';
-import '../../../Concense/keys_consence.dart';
 import '../../Donor/Donor Pages/ChatScreen.dart';
 import '../../Agent/Agent Widgets/bottom_nav.dart';
 import '../Agent Widgets/header.dart';
@@ -40,29 +39,25 @@ class _AgentHomeState extends State<AgentHome>
   }
 
   void _loadDonations() {
-    final donationsBox = Hive.box<Donation>(KeysConstant.donationsBox);
-    final sessionBox = Hive.box(KeysConstant.sessionBox);
-    String? currentAgentId = sessionBox.get(KeysConstant.agentId);
+    final donationsBox = Hive.box<Donation>('donations');
+    final sessionBox = Hive.box('session');
+    String? currentAgentId = sessionBox.get('agentId');
 
     setState(() {
       if (currentAgentId != null) {
         pendingDonations = donationsBox.values
-            .where((donation) =>
-        donation.status == KeysConstant.acceptedStatus &&
-            donation.acceptedByAgentId == currentAgentId)
+            .where((donation) => donation.status == "accepted" && donation.acceptedByAgentId == currentAgentId)
             .toList();
 
         completedDonations = donationsBox.values
-            .where((donation) =>
-        donation.status == KeysConstant.completedStatus &&
-            donation.acceptedByAgentId == currentAgentId)
+            .where((donation) => donation.status == "completed" && donation.acceptedByAgentId == currentAgentId)
             .toList();
       } else {
         pendingDonations = donationsBox.values
-            .where((donation) => donation.status == KeysConstant.acceptedStatus)
+            .where((donation) => donation.status == "accepted")
             .toList();
         completedDonations = donationsBox.values
-            .where((donation) => donation.status == KeysConstant.completedStatus)
+            .where((donation) => donation.status == "completed")
             .toList();
       }
     });
@@ -167,8 +162,7 @@ class _AgentHomeState extends State<AgentHome>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.pending_actions,
-                          size: 60, color: Colors.grey),
+                      Icon(Icons.pending_actions, size: 60, color: Colors.grey),
                       SizedBox(height: 16),
                       Text(
                         "No pending deliveries",
@@ -194,8 +188,7 @@ class _AgentHomeState extends State<AgentHome>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.check_circle,
-                          size: 60, color: Colors.grey),
+                      Icon(Icons.check_circle, size: 60, color: Colors.grey),
                       SizedBox(height: 16),
                       Text(
                         "No completed deliveries",
@@ -252,7 +245,7 @@ class _AgentHomeState extends State<AgentHome>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    donation.foodName,
+                    donation.foodName ?? 'No Food Name',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -261,12 +254,12 @@ class _AgentHomeState extends State<AgentHome>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${donation.quantity} people • ${donation.location}',
+                    '${donation.quantity} people • ${donation.location ?? 'No Location'}',
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${donation.date} ${donation.time}',
+                    '${donation.date ?? 'No Date'} ${donation.time ?? 'No Time'}',
                     style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ],
@@ -280,8 +273,7 @@ class _AgentHomeState extends State<AgentHome>
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon:
-                    const Icon(Icons.chat, color: Colors.blue, size: 20),
+                    icon: const Icon(Icons.chat, color: Colors.blue, size: 20),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -325,7 +317,7 @@ class _AgentHomeState extends State<AgentHome>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  donation.foodName,
+                  donation.foodName ?? 'No Food Name',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -334,12 +326,12 @@ class _AgentHomeState extends State<AgentHome>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${donation.quantity} people • ${donation.location}',
+                  '${donation.quantity} people • ${donation.location ?? 'No Location'}',
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Completed • ${donation.date}',
+                  'Completed • ${donation.date ?? 'No Date'}',
                   style: const TextStyle(color: Colors.white, fontSize: 12),
                 ),
               ],
@@ -353,8 +345,7 @@ class _AgentHomeState extends State<AgentHome>
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
-                  icon:
-                  const Icon(Icons.chat, color: Colors.green, size: 20),
+                  icon: const Icon(Icons.chat, color: Colors.green, size: 20),
                   onPressed: () {
                     Navigator.push(
                       context,

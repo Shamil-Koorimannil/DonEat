@@ -1,10 +1,9 @@
 import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+
 part 'DonEat_model.g.dart';
 
-@HiveType(typeId:10)
-
-class Donor extends HiveObject{
+@HiveType(typeId: 0)
+class Donor extends HiveObject {
   @HiveField(0)
   String? name;
 
@@ -20,116 +19,137 @@ class Donor extends HiveObject{
   @HiveField(4)
   String? profilePhotoPath;
 
-Donor({
-  required this.name,
-  required this.email,
-  required this.phone,
-  required this.password,
-  this.profilePhotoPath,
-});
+  Donor({
+    this.name,
+    this.email,
+    this.phone,
+    this.password,
+    this.profilePhotoPath,
+  });
 }
 
-@HiveType(typeId: 11)
+@HiveType(typeId: 1)
 class Agent extends HiveObject {
   @HiveField(0)
   String? name;
 
   @HiveField(1)
   String? email;
-  
+
   @HiveField(2)
   String? phone;
-  
+
   @HiveField(3)
   String? password;
-  
+
   @HiveField(4)
-  String? vehicleType;
-  
-  @HiveField(5)
-  int? capacity;
-  
-  @HiveField(6)
   String? profilePhotoPath;
 
+  @HiveField(5)
+  String? vehicleType;
+
+  @HiveField(6)
+  int? capacity;
+
   Agent({
-    required this.name,
-    required this.email,
-    required this.phone,
-    required this.password,
-    required this.profilePhotoPath,
-    required this.vehicleType,
-    required this.capacity
-});
+    this.name,
+    this.email,
+    this.phone,
+    this.password,
+    this.profilePhotoPath,
+    this.vehicleType,
+    this.capacity,
+  });
 }
 
-@HiveType(typeId: 12)
+@HiveType(typeId: 2)
 class Donation extends HiveObject {
   @HiveField(0)
-  String foodName;
+  String? foodName;
 
   @HiveField(1)
-  String location;
+  String? location;
 
   @HiveField(2)
-  String date;
+  String? date;
 
   @HiveField(3)
-  String time;
+  String? time;
 
   @HiveField(4)
-  String contact;
+  String? contact;
 
   @HiveField(5)
-  int quantity;
+  int? quantity;
 
   @HiveField(6)
   List<String>? imagePaths;
 
   @HiveField(7)
-  String status;
+  String? donationId;
 
   @HiveField(8)
-  String? acceptedByAgentId;
+  String? status;
 
   @HiveField(9)
-  String donationId;
+  String? acceptedByAgentId;
+
+  @HiveField(10)
+  String? donorId;
+
+  @HiveField(11)
+  String? donorEmail;
+
+  @HiveField(12)
+  String? agentEmail;
 
   Donation({
-    required this.foodName,
-    required this.location,
-    required this.date,
-    required this.time,
-    required this.contact,
-    required this.quantity,
-    required this.donationId,
+    this.foodName,
+    this.location,
+    this.date,
+    this.time,
+    this.contact,
+    this.quantity,
     this.imagePaths,
-    this.status = "available",
+    this.donationId,
+    this.status = 'available',
     this.acceptedByAgentId,
+    this.donorId,
+    this.donorEmail,
+    this.agentEmail,
   });
 }
-@HiveType(typeId: 13)
+
+@HiveType(typeId: 3)
 class ChatMessage extends HiveObject {
   @HiveField(0)
-  final String donationId;
+  String? donationId;
 
   @HiveField(1)
-  final String senderId;
+  String? senderId;
 
   @HiveField(2)
-  final String message;
+  String? message;
 
   @HiveField(3)
-  final DateTime timestamp;
+  DateTime? timestamp;
 
   @HiveField(4)
-  final String senderName;
+  String? senderName;
+
+  @HiveField(5)
+  String? senderType;
+
+  @HiveField(6)
+  String? senderEmail;
 
   ChatMessage({
-    required this.donationId,
-    required this.senderId,
-    required this.message,
-    required this.timestamp,
-    required this.senderName,
+    this.donationId,
+    this.senderId,
+    this.message,
+    this.timestamp,
+    this.senderName,
+    this.senderType,
+    this.senderEmail,
   });
 }

@@ -20,58 +20,137 @@ class _ChatScreenState extends State<ChatScreen> {
   List<ChatMessage> _messages = [];
   late String _currentUserId;
   late String _currentUserName;
+  late String _currentUserType;
+  String? _otherUserName;
+  String? _currentUserEmail;
 
   @override
   void initState() {
     super.initState();
     _loadUserInfo();
+    _loadOtherUserName();
     _loadChatMessages();
   }
 
-  void _loadUserInfo() {
+  void _loadUserInfo() async {
     final sessionBox = Hive.box(KeysConstant.sessionBox);
     final userType = sessionBox.get(KeysConstant.userType);
 
     if (userType == KeysConstant.donorUserType) {
-      _currentUserId = KeysConstant.donorUserType;
-      _currentUserName = 'You';
+      _currentUserType = KeysConstant.donorUserType;
+
+      final donorsBox = Hive.box<Donor>(KeysConstant.donorsBox);
+      final currentDonorIndex = sessionBox.get(KeysConstant.loggedInUserIndex);
+      if (currentDonorIndex != null) {
+        final donor = donorsBox.getAt(currentDonorIndex);
+        _currentUserEmail = donor?.email;
+        _currentUserId = 'donor_${donor?.email ?? 'unknown'}';
+        _currentUserName = donor?.name ?? 'You';
+      } else {
+        _currentUserId = 'donor_unknown';
+        _currentUserName = 'You';
+      }
     } else {
-      _currentUserId = KeysConstant.agentUserType;
-      _currentUserName = 'Agent';
+      _currentUserType = KeysConstant.agentUserType;
+
+      final agentsBox = Hive.box<Agent>(KeysConstant.agentsBox);
+      final currentAgentIndex = sessionBox.get(KeysConstant.loggedInUserIndex);
+      if (currentAgentIndex != null) {
+        final agent = agentsBox.getAt(currentAgentIndex);
+        _currentUserEmail = agent?.email;
+        _currentUserId = 'agent_${agent?.email ?? 'unknown'}';
+        _currentUserName = agent?.name ?? 'Agent';
+      } else {
+        _currentUserId = 'agent_unknown';
+        _currentUserName = 'Agent';
+      }
     }
+
+    setState(() {});
+  }
+
+  void _loadOtherUserName() async {
+    final sessionBox = Hive.box(KeysConstant.sessionBox);
+    final userType = sessionBox.get(KeysConstant.userType);
+
+    try {
+      if (userType == KeysConstant.donorUserType) {
+        if (widget.donation.agentEmail != null) {
+          final agentsBox = Hive.box<Agent>(KeysConstant.agentsBox);
+          final agents = agentsBox.values.toList();
+          final acceptingAgent = agents.firstWhere(
+                  (agent) => agent.email == widget.donation.agentEmail,
+              orElse: () => Agent(name: 'Agent', email: '', password: '', phone: '')
+          );
+          _otherUserName = acceptingAgent.name ?? 'Agent';
+        } else {
+          _otherUserName = 'Agent';
+        }
+      } else {
+        if (widget.donation.donorEmail != null) {
+          final donorsBox = Hive.box<Donor>(KeysConstant.donorsBox);
+          final donors = donorsBox.values.toList();
+          final donor = donors.firstWhere(
+                  (donor) => donor.email == widget.donation.donorEmail,
+              orElse: () => Donor(name: 'Donor', email: '', password: '', phone: '')
+          );
+          _otherUserName = donor.name ?? 'Donor';
+        } else {
+          _otherUserName = 'Donor';
+        }
+      }
+    } catch (e) {
+      print('Error loading other user name: $e');
+      _otherUserName = userType == KeysConstant.donorUserType ? 'Agent' : 'Donor';
+    }
+
+    setState(() {});
   }
 
   void _loadChatMessages() {
-    final chatBox = Hive.box<ChatMessage>(KeysConstant.chatMessagesBox);
+    try {
+      final chatBox = Hive.box<ChatMessage>(KeysConstant.chatMessagesBox);
 
-    _messages = chatBox.values
-        .where((message) => message.donationId == widget.donation.donationId)
-        .toList()
-      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+      _messages = chatBox.values
+          .where((message) => message.donationId == widget.donation.donationId)
+          .toList()
+        ..sort((a, b) => (a.timestamp ?? DateTime.now()).compareTo(b.timestamp ?? DateTime.now()));
 
-    setState(() {});
+      setState(() {});
+    } catch (e) {
+      print('Error loading chat messages: $e');
+    }
   }
 
   void _sendMessage() {
     if (_messageController.text.trim().isEmpty) return;
 
-    final chatBox = Hive.box<ChatMessage>(KeysConstant.chatMessagesBox);
+    try {
+      final chatBox = Hive.box<ChatMessage>(KeysConstant.chatMessagesBox);
 
-    final newMessage = ChatMessage(
-      donationId: widget.donation.donationId,
-      senderId: _currentUserId,
-      message: _messageController.text.trim(),
-      timestamp: DateTime.now(),
-      senderName: _currentUserName,
-    );
+      final newMessage = ChatMessage(
+        donationId: widget.donation.donationId!,
+        senderId: _currentUserId,
+        message: _messageController.text.trim(),
+        timestamp: DateTime.now(),
+        senderName: _currentUserName,
+        senderType: _currentUserType,
+        senderEmail: _currentUserEmail,
+      );
 
-    chatBox.add(newMessage);
+      chatBox.add(newMessage);
 
-    setState(() {
-      _messages.add(newMessage);
-    });
+      setState(() {
+        _messages.add(newMessage);
+      });
 
-    _messageController.clear();
+      _messageController.clear();
+    } catch (e) {
+      print('Error sending message: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to send message')),
+      );
+    }
   }
 
   void _navigateBack() {
@@ -81,16 +160,25 @@ class _ChatScreenState extends State<ChatScreen> {
     if (userType == KeysConstant.donorUserType) {
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => DonorHome()),
+        MaterialPageRoute(builder: (_) => const DonorHome()),
             (route) => false,
       );
     } else {
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => AgentHome()),
+        MaterialPageRoute(builder: (_) => const AgentHome()),
             (route) => false,
       );
     }
+  }
+
+  String _getDisplayName(ChatMessage message) {
+    if (message.senderId == _currentUserId) {
+      return 'You';
+    }
+
+    return _otherUserName ??
+        (message.senderType == KeysConstant.donorUserType ? 'Donor' : 'Agent');
   }
 
   @override
@@ -107,9 +195,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   height: 200,
                   color: const Color(0xFFFF863B),
                   alignment: Alignment.center,
-                  child: const Text(
+                  child: Text(
                     "Chat",
-                    style: TextStyle(
+                    style: const TextStyle(
                         color: Colors.white,
                         fontSize: 28,
                         fontWeight: FontWeight.bold),
@@ -124,21 +212,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Color(0xFFFF7C2A)),
                     onPressed: _navigateBack,
-                  ),
-                ),
-              ),
-              const Positioned(
-                top: 80,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Text(
-                    "Chat",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
                   ),
                 ),
               ),
@@ -162,16 +235,25 @@ class _ChatScreenState extends State<ChatScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.donation.foodName,
+                        widget.donation.foodName ?? 'No Food Name',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
                       ),
                       Text(
-                        '${widget.donation.quantity} people • ${widget.donation.location}',
+                        '${widget.donation.quantity ?? 0} people • ${widget.donation.location ?? 'No Location'}',
                         style: const TextStyle(fontSize: 12),
                       ),
+                      if (_otherUserName != null)
+                        Text(
+                          'Chatting with: $_otherUserName',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFFFF7C2A),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -197,12 +279,14 @@ class _ChatScreenState extends State<ChatScreen> {
               itemBuilder: (context, index) {
                 final message = _messages[index];
                 final isUser = message.senderId == _currentUserId;
+                final displayName = _getDisplayName(message);
 
                 return ChatBubble(
-                  message: message.message,
+                  message: message.message ?? '',
                   isUser: isUser,
-                  senderName: message.senderName,
-                  timestamp: message.timestamp,
+                  senderName: displayName,
+                  timestamp: message.timestamp ?? DateTime.now(),
+                  otherUserName: _otherUserName,
                 );
               },
             ),
@@ -252,6 +336,7 @@ class ChatBubble extends StatelessWidget {
   final bool isUser;
   final String senderName;
   final DateTime timestamp;
+  final String? otherUserName;
 
   const ChatBubble({
     super.key,
@@ -259,6 +344,7 @@ class ChatBubble extends StatelessWidget {
     required this.isUser,
     required this.senderName,
     required this.timestamp,
+    this.otherUserName,
   });
 
   @override
@@ -338,15 +424,14 @@ class ChatBubble extends StatelessWidget {
           CircleAvatar(
             radius: 20,
             backgroundColor: isUser ? const Color(0xFFFF7C2A) : Colors.blue,
-            child: Icon(
-              isUser ? Icons.person : Icons.support_agent,
+            child: Icon( Icons.person,
               color: Colors.white,
               size: 20,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            isUser ? 'You' : 'Agent',
+            isUser ? 'You' : (otherUserName ?? 'User'),
             style: const TextStyle(
               fontSize: 10,
               color: Colors.black54,
